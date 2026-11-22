@@ -8,3 +8,5 @@ Patient and chemist companion app for Telangana and Andhra Pradesh (Telugu / Eng
 - Never commit SMTP keys, the Supabase service-role key, database passwords or AI keys.
 
 Separate from Fingertip Easy (hotel app) and the old Rx Fingertip app.
+
+**AI tools / developers: read [HANDOFF.md](HANDOFF.md) first** — setup, what is tested, and the launch checklist.
