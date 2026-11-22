@@ -153,6 +153,12 @@ legend{font-size:.85rem;font-weight:600;color:var(--muted);margin-bottom:6px;pad
 .timeline{display:flex;gap:4px;margin:10px 0}
 .timeline div{flex:1;height:5px;border-radius:3px;background:var(--line)}
 .timeline div.on{background:var(--pri)}
+.chips.hscroll{flex-wrap:nowrap;overflow-x:auto;padding-bottom:4px;-webkit-overflow-scrolling:touch;scrollbar-width:none}.chips.hscroll>*{flex-shrink:0}
+.vlist{display:flex;flex-direction:column;gap:10px;margin-bottom:12px}
+.vitem{display:flex;gap:10px;align-items:flex-start;text-align:left;background:#fff;border:1px solid var(--line);border-radius:12px;padding:8px;cursor:pointer;font:inherit;color:inherit}
+.vitem img{width:128px;aspect-ratio:16/9;object-fit:cover;border-radius:8px;flex-shrink:0;background:#e8efec}
+.vitem .vt{display:flex;flex-direction:column;gap:3px;min-width:0}.vitem .vt b{font-size:.9rem;line-height:1.3;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.vframe{position:relative;width:100%;aspect-ratio:16/9;border-radius:10px;overflow:hidden;background:#000}.vframe iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
 .searchbox{width:100%;padding:10px 12px;border:1px solid #cfdad6;border-radius:10px;margin-bottom:12px;font-size:.95rem;background:#fff}
 .stockrow .qtyctl{display:flex;align-items:center;gap:4px}
 .stockrow .qtyctl button{width:30px;height:30px;border-radius:8px;border:1px solid var(--line);background:#fff;font-weight:700}
@@ -443,6 +449,14 @@ const T={
  hs_pending:["Waiting","వేచి ఉంది"],hs_verified:["Active","యాక్టివ్"],hs_rejected:["Blocked","నిలిపివేయబడింది"],
  regHosps:["Registered hospitals","నమోదైన ఆసుపత్రులు"],iamHospital:["I'm a hospital","నేను ఆసుపత్రి"],iamHospitalS:["Register, enrol patients, send records","నమోదు, రోగుల చేర్పు, రికార్డుల పంపకం"],
  patientsTab:["Patients","రోగులు"],
+ vidHealth:["Health videos by doctors","డాక్టర్ల ఆరోగ్య వీడియోలు"],vidSearch:["Search: sugar, BP, knee pain…","వెతకండి: షుగర్, బీపీ, మోకాలి నొప్పి…"],
+ vidTeOnly:["Telugu first","తెలుగు ముందు"],vidMore:["More on YouTube","YouTube లో మరిన్ని"],vidNone:["No videos found here yet. Try another word, or search YouTube.","ఇక్కడ వీడియోలు లేవు. వేరే పదం ప్రయత్నించండి లేదా YouTube లో వెతకండి."],
+ vidShowMore:["Show more","మరిన్ని చూపించు"],vidFrom:["From trusted hospital channels. General information, not medical advice.","నమ్మకమైన ఆసుపత్రి ఛానెల్స్ నుండి. ఇది సాధారణ సమాచారం, వైద్య సలహా కాదు."],
+ vidOpenYt:["Open in YouTube","YouTube లో తెరవండి"],vidHide:["Hide this video","ఈ వీడియో దాచండి"],vidMine:["Added by users","వినియోగదారులు చేర్చినవి"],vidViews:["{n} views","{n} వీక్షణలు"],
+ c_diabetes:["Diabetes","షుగర్"],c_bp:["BP","బీపీ"],c_heart:["Heart","గుండె"],c_thyroid:["Thyroid","థైరాయిడ్"],c_kidney:["Kidney","కిడ్నీ"],c_liver:["Liver","లివర్"],
+ c_pregnancy:["Pregnancy","గర్భం"],c_child:["Child care","పిల్లల ఆరోగ్యం"],c_joints:["Joints & back","కీళ్లు & నడుము"],c_lungs:["Lungs & asthma","ఊపిరితిత్తులు"],
+ c_stomach:["Stomach","కడుపు"],c_cancer:["Cancer","క్యాన్సర్"],c_brain:["Brain & stroke","మెదడు & పక్షవాతం"],c_women:["Women's health","మహిళల ఆరోగ్యం"],
+ c_fever:["Fever","జ్వరం"],c_diet:["Diet & weight","ఆహారం & బరువు"],c_mind:["Stress & sleep","ఒత్తిడి & నిద్ర"],c_firstaid:["First aid","ప్రథమ చికిత్స"],
  signOut:["Sign out","సైన్ అవుట్"],signedInAs:["Signed in as","సైన్ ఇన్ అయిన ఖాతా"],offline:["No internet — changes will show when you're back online.","ఇంటర్నెట్ లేదు — తిరిగి ఆన్‌లైన్ అయ్యాక మార్పులు కనిపిస్తాయి."],
  authNote:["Your health details are private to your account. General guidance only, not medical advice. In an emergency call 108.","మీ ఆరోగ్య వివరాలు మీ ఖాతాకు మాత్రమే. ఇది సాధారణ సమాచారం, వైద్య సలహా కాదు. అత్యవసరంలో 108 కి కాల్ చేయండి."],
  lang_te:["Telugu","తెలుగు"],lang_en:["English","ఇంగ్లీష్"],lang_hi:["Hindi","హిందీ"],
@@ -815,7 +829,7 @@ function weekAdherence(){
 const ROUTES=["home","patient","diet","chemist","hospadmin"];
 const SUB=["health","vault","location","hospitals","videos","chat","vitals"];
 let route="home";
-const UI={dietDay:new Date().getDay(),ctab:"orders",ofilter:"active",q:"",hq:"",hk:"all",vc:"all",vt:"all",h1q:"",req:"",dist:"",reqAt:undefined,reqDirty:false};
+const UI={dietDay:new Date().getDay(),ctab:"orders",ofilter:"active",q:"",hq:"",hk:"all",vc:"all",vq:"",vcond:"all",vt:"all",h1q:"",req:"",dist:"",reqAt:undefined,reqDirty:false};
 function readRoute(){const h=(location.hash||"").replace("#","");route=ROUTES.includes(h)||SUB.includes(h)?h:"home"}
 let rq=false;function scheduleRender(){if(rq)return;rq=true;requestAnimationFrame(()=>{rq=false;render()})}
 function render(){
@@ -1492,14 +1506,66 @@ function verifiedHospCards(){
 
 /* ---------- health videos ---------- */
 const VC=["chemist","doctor","hospital"];
+const VCOND={diabetes:["🩸",["diabetes","diabetic","sugar","insulin","షుగర్","మధుమేహ","డయాబెటి","చక్కెర"]],bp:["💓",["blood pressure","bp","hypertension","బీపీ","రక్తపోటు"]],
+ heart:["❤️",["heart","cardiac","chest pain","గుండె","హార్ట్"]],thyroid:["🦋",["thyroid","థైరాయిడ్"]],kidney:["🫘",["kidney","dialysis","urine","కిడ్నీ","మూత్ర"]],
+ liver:["🟤",["liver","hepatitis","jaundice","లివర్","కాలేయ","కామెర్ల"]],pregnancy:["🤰",["pregnan","pcos","pcod","ivf","గర్భ","ప్రెగ్నెన్సీ"]],child:["👶",["child","baby","kids","పిల్ల","శిశు"]],
+ joints:["🦴",["knee","joint","back pain","neck pain","arthritis","spine","మోకాలి","నడుము","కీళ్ల"]],lungs:["🫁",["asthma","lung","breath","cough","ఆస్తమా","ఊపిరి","దగ్గు"]],
+ stomach:["🍽️",["stomach","gastric","acidity","piles","gas","ulcer","కడుపు","గ్యాస్","పైల్స్"]],cancer:["🎗️",["cancer","tumor","క్యాన్సర్"]],
+ brain:["🧠",["stroke","brain","migraine","headache","paralysis","పక్షవాత","తలనొప్పి"]],women:["👩",["women","period","menopause","breast","మహిళ","పీరియడ్"]],
+ fever:["🌡️",["fever","dengue","malaria","typhoid","జ్వర","డెంగ్యూ"]],diet:["🥗",["diet","food","weight","obesity","ఆహార","బరువు","డైట్"]],
+ mind:["😌",["stress","anxiety","depression","sleep","ఒత్తిడి","నిద్ర"]],firstaid:["⛑️",["first aid","cpr","emergency","heart attack","ప్రథమ చికిత్స","అత్యవసర"]]};
+const Lib={rows:[],loaded:false,loading:false,n:30};
+async function libLoad(){
+ if(Lib.loading||!sb||!Store.uid)return;Lib.loading=true;
+ try{const r=await sb.from("video_library").select("id,title,channel_name,lang,conditions,views").order("views",{ascending:false}).limit(3000);
+  if(!r.error){Lib.rows=r.data||[];Lib.loaded=true;scheduleRender()}}catch(e){}
+ Lib.loading=false;
+}
+const ytId=s=>typeof s==="string"&&/^[A-Za-z0-9_-]{11}$/.test(s)?s:null;
+const fmtViews=n=>n>=1e6?(n/1e6).toFixed(1)+"M":n>=1e3?Math.round(n/1e3)+"K":String(n||0);
+function libFilter(){
+ const q=String(UI.vq||"").trim().toLowerCase();
+ let cond=UI.vcond&&UI.vcond!=="all"?UI.vcond:null;
+ let rows=Lib.rows;
+ if(cond)rows=rows.filter(x=>(x.conditions||[]).includes(cond));
+ if(q){const hit=Object.keys(VCOND).filter(c=>VCOND[c][1].some(k=>q.includes(k)||k.includes(q)&&q.length>=3));
+  rows=rows.filter(x=>String(x.title).toLowerCase().includes(q)||hit.some(c=>(x.conditions||[]).includes(c)))}
+ const teFirst=UI.vte!==false;
+ return rows.slice().sort((a,b)=>(teFirst?((b.lang==="te")-(a.lang==="te")):0)||(b.views||0)-(a.views||0));
+}
 function vVideos(){
+ if(!Lib.loaded)libLoad();
  let s=subHead("🎬 "+t("videos"),`<button class="btn sm" data-act="videoForm">+</button>`);
- s+=chipsRow("vc",[["all",t("all")]].concat(VC.map(k=>[k,t("vc_"+k)])));
- const list=Object.entries(State.videos).filter(([,x])=>x&&(UI.vc==="all"||x.cat===UI.vc)).sort((a,b)=>(b[1].at||0)-(a[1].at||0));
- if(!list.length)return s+`<div class="card empty">${t("noVideos")}<br><button class="btn" data-act="videoForm">+ ${t("addVideo")}</button></div>`;
- return s+list.map(([id,x])=>{const as=safeAsset(x.asset);const url=isHttps(x.url)?x.url.trim():null;let host="";try{host=url?new URL(url).hostname.replace(/^www\./,""):""}catch(e){}
+ s+=`<input id="vidq" class="searchbox" type="search" placeholder="${esc(t("vidSearch"))}" value="${esc(UI.vq||"")}" aria-label="${esc(t("vidSearch"))}">${micRow("vidq")}`;
+ const cur=UI.vcond||"all";
+ s+=`<div class="chips hscroll" style="margin:8px 0 12px">`+[["all",t("all")]].concat(Object.keys(VCOND).map(k=>[k,VCOND[k][0]+" "+t("c_"+k)])).map(([v,l])=>`<button class="chipbtn ${cur===v?"on":""}" data-act="vcond" data-v="${v}">${l}</button>`).join("")+
+  `<button class="chipbtn ${UI.vte!==false?"on":""}" data-act="vte">తె ${t("vidTeOnly")}</button></div>`;
+ const q=(UI.vq||"").trim()||(cur!=="all"?t("c_"+cur):"health");
+ const yt="https://www.youtube.com/results?search_query="+encodeURIComponent(q+" telugu doctor");
+ if(!Lib.loaded)s+=`<div class="card muted">${t("loading")}</div>`;
+ else{
+  const rows=libFilter();
+  if(!rows.length)s+=`<div class="card empty">${t("vidNone")}</div>`;
+  else s+=`<div class="vlist">`+rows.slice(0,Lib.n).map(x=>{const id=ytId(x.id);if(!id)return "";
+   return `<button class="vitem" data-act="playVid" data-id="${id}"><img loading="lazy" alt="" src="https://i.ytimg.com/vi/${id}/mqdefault.jpg"><span class="vt"><b>${esc(x.title)}</b><small class="muted">${esc(x.channel_name||"")}${x.views?" · "+esc(t("vidViews",{n:fmtViews(x.views)})):""}${x.lang==="te"?" · తెలుగు":""}</small></span></button>`}).join("")+`</div>`
+   +(rows.length>Lib.n?`<button class="btn ghost block" data-act="vmore" style="margin-bottom:12px">${t("vidShowMore")} (${rows.length-Lib.n})</button>`:"");
+ }
+ s+=`<a class="btn ghost block" href="${esc(yt)}" target="_blank" rel="noopener" style="margin-bottom:8px">▶ ${t("vidMore")}</a><p class="note">${t("vidFrom")}</p>`;
+ const mine=Object.entries(State.videos).filter(([,x])=>x).sort((a,b)=>(b[1].at||0)-(a[1].at||0));
+ if(mine.length){s+=`<div class="sec-h"><h2>${t("vidMine")}</h2></div>`+mine.map(([id,x])=>{const url=isHttps(x.url)?x.url.trim():null;const yid=url&&(url.match(/(?:youtu\.be\/|v=|shorts\/|embed\/)([A-Za-z0-9_-]{11})/)||[])[1];
   return `<div class="card"><div style="display:flex;gap:8px;align-items:flex-start"><div class="grow" style="flex:1"><b>${esc(x.title)}</b><div class="small muted">${t("vc_"+(VC.includes(x.cat)?x.cat:"doctor"))}${x.lang?" · "+t("lang_"+x.lang):""}</div></div>${x.by===Store.uid?`<button class="iconbtn" data-act="videoForm" data-id="${esc(id)}" aria-label="${t("edit")}">${ICON.edit}</button>`:""}</div>
-  ${as?`<video controls preload="metadata" playsinline src="/_blob/${as}"></video>`:url?`<div class="btnrow" style="margin-top:8px"><a class="btn sm" href="${esc(url)}" target="_blank" rel="noopener">▶ ${t("watch")}</a><span class="small muted">${esc(host)}</span></div>`:""}</div>`}).join("");
+  ${yid?`<div class="btnrow" style="margin-top:8px"><button class="btn sm" data-act="playVid" data-id="${esc(yid)}">▶ ${t("watch")}</button></div>`:url?`<div class="btnrow" style="margin-top:8px"><a class="btn sm" href="${esc(url)}" target="_blank" rel="noopener">▶ ${t("watch")}</a></div>`:""}</div>`}).join("")}
+ return s;
+}
+function playVid(id){
+ id=ytId(id);if(!id)return;const x=Lib.rows.find(r=>r.id===id);
+ openSheet(`<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px"><h3 style="margin:0;flex:1;font-size:1rem">${esc(x?x.title:"")}</h3><button class="iconbtn" data-close aria-label="${t("close")}">✕</button></div>
+  <div class="vframe"><iframe src="https://www.youtube-nocookie.com/embed/${id}?rel=0&modestbranding=1&playsinline=1" title="${esc(x?x.title:"video")}" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe></div>
+  ${x?`<div class="small muted" style="margin-top:6px">${esc(x.channel_name||"")}</div>`:""}
+  <p class="small muted">${t("vidFrom")}</p>
+  <div class="actions">${window.__admin&&x?`<button class="btn ghost" id="vhide" style="color:var(--bad);margin-right:auto">${t("vidHide")}</button>`:""}<a class="btn ghost" href="https://www.youtube.com/watch?v=${id}" target="_blank" rel="noopener">${t("vidOpenYt")}</a><button class="btn" data-close>${t("close")}</button></div>`,c=>{
+  const h=c.querySelector("#vhide");if(h)h.onclick=async()=>{const r=await sb.from("video_library").update({hidden:true}).eq("id",id);if(r.error)return toast(t("tryAgain"));Lib.rows=Lib.rows.filter(y=>y.id!==id);closeSheet();toast(t("saved"))};
+ });
 }
 function videoForm(id){
  const x=id?State.videos[id]:null;const c0=x&&VC.includes(x.cat)?x.cat:"doctor";const l0=x&&x.lang||"te";
@@ -2039,6 +2105,10 @@ document.addEventListener("click",async e=>{
  if(a==="hospReg")return hospRegForm();
  if(a==="hoForm"){const id=b.dataset.id;if(id){closeSheet();return setTimeout(()=>handoverForm(id),250)}return handoverForm()}
  if(a==="viewHo")return viewHo(b.dataset.id);
+ if(a==="playVid")return playVid(b.dataset.id);
+ if(a==="vcond"){UI.vcond=b.dataset.v;Lib.n=30;render();return}
+ if(a==="vte"){UI.vte=UI.vte===false;render();return}
+ if(a==="vmore"){Lib.n+=30;render();return}
  if(a==="enrollP")return enrollForm(b.dataset.kind);
  if(a==="unenroll"){const x=Net.enr.find(y=>y.id===b.dataset.id);if(!x)return;return confirmSheet(t("remove")+"?",async()=>{const r=await sb.from("enrollments").delete().eq("id",x.id);if(r.error)toast(t("tryAgain"));netLoad()})}
  if(a==="chatSend"){const bx=document.getElementById("chatbox");return chatSend(bx?bx.value:"")}
@@ -2086,7 +2156,7 @@ document.addEventListener("click",async e=>{
  if(a==="stockAdj"){const id=b.dataset.id;const x=State.inventory[id];if(!x)return;const nx=clone(x);nx.stock=Math.max(0,(+nx.stock||0)+(+b.dataset.d));State.inventory=Object.assign({},State.inventory,{[id]:nx});render();
   clearTimeout(adjT[id]);adjT[id]=setTimeout(()=>{Store.put("inventory",id,clone(State.inventory[id])).catch(()=>{})},600);return}
 });
-const SEARCH={stockq:"q",hospq:"hq",h1q:"h1q"};
+const SEARCH={stockq:"q",hospq:"hq",h1q:"h1q",vidq:"vq"};
 document.addEventListener("input",e=>{const id=e.target.id;
  if(SEARCH[id]){UI[SEARCH[id]]=e.target.value;render();return}
  if(id==="chatbox"){UI.chatDraft=e.target.value;e.target.style.height="auto";e.target.style.height=Math.min(120,e.target.scrollHeight)+"px";return}

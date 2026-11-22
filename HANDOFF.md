@@ -87,6 +87,21 @@ Most target customers do not use email, so patients and chemists sign in with a
 - Approved hospitals are listed for everyone under Hospitals → *Registered hospitals ✓*.
 - Privacy rules were tested on the live database with simulated users (20 checks, rolled back).
 
+## 3c. Health video library (no API key)
+
+- Table `video_library` (read-only for signed-in users; admins can hide a video) is filled by the
+  Edge Function **`video-sync`** (source in `supabase/functions/video-sync/index.ts`). It reads YouTube's
+  free public RSS feeds — each trusted channel's latest uploads plus up to 40 of its playlists — tags each
+  video with conditions (English + Telugu keywords) and language, and stores views.
+- Trusted channels live in table `video_channels` (Yashoda, Prathima, CARE, AIG; Apollo inactive because
+  its handle was not confirmed). Add a channel by inserting its handle or channel ID.
+- Runs daily at 00:30 UTC via `pg_cron` (job `video-sync-daily`, using `pg_net`); the function itself
+  refuses to run more than once every 6 hours. First run (23 Nov 2026): 673 videos.
+- App: Health videos screen has condition chips, word/voice search (Telugu words like షుగర్ work),
+  "Telugu first" ordering, in-app playback via youtube-nocookie embed, "More on YouTube" search link.
+- Only titles and links are stored; videos are not copied. A bigger library (1,000+) can use the
+  YouTube Data API later (needs a Google API key stored as an Edge Function secret).
+
 ## 4. Email (Brevo free plan, used as Supabase custom SMTP)
 
 - Host `smtp-relay.brevo.com`, port 587, sender name "Rx Fingertip Care",
