@@ -71,10 +71,12 @@ Most target customers do not use email, so patients and chemists sign in with a
 
 - **Hospital registration** (`hospital_accounts`): a hospital signs in with mobile + PIN, taps
   *I'm a hospital* on Home and fills name, registration/licence no., address, phone, emergency no.,
-  ambulance, departments, doctors & OPD timings, map link. Status starts `pending`.
-- **One-time approval by the owner**: Profile → *Approve hospitals*. Only admins (table `app_admins`)
-  can change status (database trigger). Changing the hospital **name or registration no.** sends it
-  back to `pending`; other edits do not.
+  ambulance, departments, doctors & OPD timings, map link.
+- **No approval step (owner's decision, 22 Nov 2026)**: hospitals are active (`verified`) as soon as they
+  register. The owner can **block** or unblock a hospital from Profile → *Manage hospitals*; only admins
+  (table `app_admins`) can change status (database trigger), and a blocked hospital cannot send records.
+  To bring approval back later: set the column default to `pending` and require `status = 'pending'`
+  in the insert policy.
 - **Record handover** (`vault_handover`): an approved hospital sends a photo/PDF record (up to 3 files,
   about 190 KB each) to a patient's mobile number. The patient sees it in *Health vault → From hospitals*.
   The hospital can edit, replace or delete only its own records; the patient can view and download
@@ -123,7 +125,7 @@ Done:
 Still to do (test on Android Chrome, on mobile data as well as Wi-Fi):
 - [ ] Create an account with a **mobile number + PIN** on the live site and sign in on a second phone
 - [ ] Owner signs in (email) → Profile → Reset a patient's PIN → patient signs in with the new PIN
-- [ ] Hospital registers → owner approves → hospital sends a record → patient sees it in the vault
+- [ ] Hospital registers → hospital sends a record → patient sees it in the vault; owner can block it
 - [ ] Chemist enrols a patient → patient sees the pharmacy under "My pharmacy & hospital"
 - [ ] (Optional, email users only) Register a new email account and confirm via the email link
 - [ ] Sign in, sign out, sign in again
