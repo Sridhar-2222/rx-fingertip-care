@@ -102,6 +102,24 @@ Most target customers do not use email, so patients and chemists sign in with a
 - Only titles and links are stored; videos are not copied. A bigger library (1,000+) can use the
   YouTube Data API later (needs a Google API key stored as an Edge Function secret).
 
+## 3d. Voice first, then photo, then typing (free, on the phone)
+
+- Every form opened in a sheet (except PIN/password forms marked `data-nosf`) gets a bar at the top:
+  **🎤 Speak (Telugu / English)**, **📷 Photo**, **⌨️ Type**, **🔊 What to say**.
+- Speech: browser speech recognition (Chrome, te-IN / en-IN). When the person stops speaking, the
+  form fills automatically. Details can be said **in any order**; the local engine `LS` in `index.html`
+  understands names, age, sex, village/address, phone numbers (own / doctor / emergency), height,
+  weight, blood group, conditions, BP ("140 by 90"), sugar (fasting/after food), pulse/HR, SpO2,
+  temperature, medicine name + strength, dose, morning/afternoon/night, before/after food, days,
+  quantities, batch, expiry, supplier, invoice, licence/registration no., hospital/shop names,
+  order lists ("Dolo 650 two strips and Pan 40 one strip"), in English and Telugu (Telugu digits too).
+  Words that match nothing (e.g. a name said without "name") are used for the name, then the place.
+- Photo: printed slips are read on the phone with Tesseract.js (English + Telugu, loaded from the
+  jsDelivr CDN only when first used; first use downloads language data). Handwriting is weak.
+- Always shows "Here's what I understood" with a 🔊 Read back button; the person checks and saves.
+- If a paid AI is added later (`CAP.sample`), the same bar switches to the AI path automatically.
+- Privacy note for pilot users: Chrome's speech recognition sends audio to Google to turn it into text.
+
 ## 4. Email (Brevo free plan, used as Supabase custom SMTP)
 
 - Host `smtp-relay.brevo.com`, port 587, sender name "Rx Fingertip Care",
@@ -148,6 +166,8 @@ Still to do (test on Android Chrome, on mobile data as well as Wi-Fi):
 - [ ] Wrong password shows a clear message
 - [ ] Unconfirmed email shows "please confirm your email first"
 - [ ] Telugu language switch and voice read-aloud work
+- [ ] On a real Android phone: speak a patient's details in any order (Telugu and English) and check the form
+- [ ] Photograph a printed OP slip / BP slip and check the form
 - [ ] Install to home screen with the "App" button; app opens full-screen
 - [ ] Two accounts: patient data does not appear in the other account
 - [ ] Chemist flow: create shop, add stock, receive a patient order

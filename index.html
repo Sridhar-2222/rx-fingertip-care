@@ -154,6 +154,7 @@ legend{font-size:.85rem;font-weight:600;color:var(--muted);margin-bottom:6px;pad
 .timeline div{flex:1;height:5px;border-radius:3px;background:var(--line)}
 .timeline div.on{background:var(--pri)}
 .chips.hscroll{flex-wrap:nowrap;overflow-x:auto;padding-bottom:4px;-webkit-overflow-scrolling:touch;scrollbar-width:none}.chips.hscroll>*{flex-shrink:0}
+.sfgot{background:var(--pri-l);border-radius:10px;padding:8px 10px;margin-top:8px;line-height:1.5}
 .vlist{display:flex;flex-direction:column;gap:10px;margin-bottom:12px}
 .vitem{display:flex;gap:10px;align-items:flex-start;text-align:left;background:#fff;border:1px solid var(--line);border-radius:12px;padding:8px;cursor:pointer;font:inherit;color:inherit}
 .vitem img{width:128px;aspect-ratio:16/9;object-fit:cover;border-radius:8px;flex-shrink:0;background:#e8efec}
@@ -457,6 +458,11 @@ const T={
  c_pregnancy:["Pregnancy","గర్భం"],c_child:["Child care","పిల్లల ఆరోగ్యం"],c_joints:["Joints & back","కీళ్లు & నడుము"],c_lungs:["Lungs & asthma","ఊపిరితిత్తులు"],
  c_stomach:["Stomach","కడుపు"],c_cancer:["Cancer","క్యాన్సర్"],c_brain:["Brain & stroke","మెదడు & పక్షవాతం"],c_women:["Women's health","మహిళల ఆరోగ్యం"],
  c_fever:["Fever","జ్వరం"],c_diet:["Diet & weight","ఆహారం & బరువు"],c_mind:["Stress & sleep","ఒత్తిడి & నిద్ర"],c_firstaid:["First aid","ప్రథమ చికిత్స"],
+ sbTitle:["Speak in any order — or use a photo","ఏ క్రమంలోనైనా చెప్పండి — లేదా ఫోటో వాడండి"],sfType:["Type","టైప్"],sfGuide:["What to say","ఏం చెప్పాలి"],
+ sfGuideSay:["Please say: {list}. Any order is fine.","దయచేసి చెప్పండి: {list}. ఏ క్రమంలోనైనా పర్వాలేదు."],sfUnderstood:["Here's what I understood","నేను అర్థం చేసుకున్నది"],
+ sfCheck:["Please check and correct before saving.","సేవ్ చేసే ముందు సరిచూసి, అవసరమైతే మార్చండి."],sfReadBack:["Read back","మళ్ళీ వినిపించు"],sfItems:["Items","వస్తువులు"],
+ sfPhotoStep:["Reading photo {i} of {n}… (first time takes longer)","ఫోటో {i}/{n} చదువుతోంది… (మొదటిసారి కొంచెం ఎక్కువ సమయం)"],
+ sfPhotoFail:["Couldn't read the photo. Try a clear, well-lit photo of printed text, or speak instead.","ఫోటో చదవలేకపోయాం. వెలుతురులో స్పష్టమైన ప్రింటెడ్ ఫోటో తీయండి, లేదా మాట్లాడి చెప్పండి."],
  signOut:["Sign out","సైన్ అవుట్"],signedInAs:["Signed in as","సైన్ ఇన్ అయిన ఖాతా"],offline:["No internet — changes will show when you're back online.","ఇంటర్నెట్ లేదు — తిరిగి ఆన్‌లైన్ అయ్యాక మార్పులు కనిపిస్తాయి."],
  authNote:["Your health details are private to your account. General guidance only, not medical advice. In an emergency call 108.","మీ ఆరోగ్య వివరాలు మీ ఖాతాకు మాత్రమే. ఇది సాధారణ సమాచారం, వైద్య సలహా కాదు. అత్యవసరంలో 108 కి కాల్ చేయండి."],
  lang_te:["Telugu","తెలుగు"],lang_en:["English","ఇంగ్లీష్"],lang_hi:["Hindi","హిందీ"],
@@ -1189,7 +1195,7 @@ function startMic(btn){
 }
 function setupDictation(d){
  d.onFinal(({text})=>{const el=micTargetId&&document.getElementById(micTargetId);if(!el||!text)return;el.value=el.value?el.value+text:text.replace(/^\s+/,"");el.dispatchEvent(new Event("input",{bubbles:true}))});
- d.onState(({state})=>{paintMics(state!=="idle");if(state==="idle")micBtnKey=null});
+ d.onState(({state})=>{paintMics(state!=="idle");if(state==="idle"){micBtnKey=null;if(micTargetId==="sf_text"&&window.__sfAuto){const el=document.getElementById("sf_text");if(el&&el.value.trim())setTimeout(()=>window.__sfAuto(el.value.trim()),50)}}});
 }
 function sayBtn(key,sm){if(!CAP.tts)return "";return `<button type="button" class="btn ghost${sm?" sm":""}" data-say="${esc(key)}">🔊 ${t("readAloud")}</button>`}
 function sayText(key){
@@ -1469,6 +1475,7 @@ function handoverForm(id){
   <div class="fprev" id="ho_prev"></div>
   <div class="actions">${x?`<button type="button" class="btn ghost" id="delx" style="color:var(--bad);margin-right:auto">${t("del")}</button>`:""}<button type="button" class="btn ghost" data-close>${t("cancel")}</button><button class="btn" type="submit" id="sbtn">${t("sendRecord")}</button></div></form>`,c=>{
   const st=filePicker(c,{preview:"ho_prev",inputs:[["ho_cam","doc"],["ho_files","doc"]],max:3});
+  c.querySelector("#f").__sfPhoto=async files=>{for(const fl of files){if(st.items.length>=3)break;try{const x=await fileToStored(fl);x.tag="doc";st.items.push(x)}catch(e){}}st.draw()};
   const dx=c.querySelector("#delx");if(dx)dx.onclick=()=>confirmSheet(t("del")+": "+(m.title||""),async()=>{await sb.from("vault_handover").delete().eq("id",id);netLoad()});
   c.querySelector("#f").onsubmit=async e=>{e.preventDefault();const fd=new FormData(e.target);
    const phone=x?x.patient_phone:normPhone(fd.get("phone"));if(!phone)return toast(t("badPhone"));
@@ -1909,27 +1916,263 @@ function fillForm(form,obj){
  form.dispatchEvent(new Event("change",{bubbles:true}));
  return n;
 }
+/* ---------- Local smart fill: speech or photo text in ANY order -> form fields (free, on the phone) ---------- */
+const LS=(()=>{
+ const TD="౦౧౨౩౪౫౬౭౮౯";
+ const NUMW={zero:0,one:1,two:2,three:3,four:4,five:5,six:6,seven:7,eight:8,nine:9,ten:10,"ఒకటి":1,"రెండు":2,"మూడు":3,"నాలుగు":4,"ఐదు":5,"ఆరు":6,"ఏడు":7,"ఎనిమిది":8,"తొమ్మిది":9,"పది":10};
+ const norm=s=>String(s||"").replace(/[౦-౯]/g,d=>TD.indexOf(d)).replace(/[“”"]/g," ").replace(/[ \t\r]+/g," ").replace(/ *\n+ */g,"\n").trim();
+ const isLat=c=>/[a-z]/i.test(c);
+ // find a cue (English needs word boundaries; Telugu matches as text). Returns [start,end] of the first match.
+ function findCue(low,cues,from){
+  let best=null;
+  for(const c of cues.slice().sort((a,b)=>b.length-a.length)){
+   let i=low.indexOf(c,from||0);
+   while(i>=0){
+    const pre=low[i-1]||" ",post=low[i+c.length]||" ";
+    const okB=!isLat(c[0])||(!/[a-z0-9]/.test(pre)&&(!isLat(c[c.length-1])||!/[a-z]/.test(post)));
+    if(okB){if(!best||i<best[0])best=[i,i+c.length];break}
+    i=low.indexOf(c,i+1);
+   }
+  }
+  return best;
+ }
+ const C={
+  name:["my name is","name is","patient name","naa peru","nā pēru","నా పేరు","పేషెంట్ పేరు","రోగి పేరు","పేరు","name"],
+  place:["my village is","village name","village","from","ఊరి పేరు","మా ఊరు","గ్రామం","ఊరు","place","town","colony","కాలనీ","mandal","మండలం","district","జిల్లా","address","అడ్రస్","చిరునామా","street","వీధి","area","ఏరియా"],
+  doctor:["doctor name","doctor","dr.","dr","డాక్టర్","వైద్యుడు"],
+  allergy:["allergic to","allergy to","allergy","allergies","అలర్జీ"],
+  surgery:["surgery","operation","ఆపరేషన్","సర్జరీ"],
+  emerg:["emergency contact","emergency","in case of emergency","అత్యవసర"],
+  shop:["shop name","shop","medical hall","medicals","medical","pharmacy","షాప్","మెడికల్"],
+  hosp:["hospital name","hospital","clinic","ఆసుపత్రి","హాస్పిటల్","క్లినిక్"],
+  med:["medicine name","medicine","tablet","tab","capsule","syrup","injection","మందు","టాబ్లెట్","మాత్ర","సిరప్"],
+  supplier:["supplier","distributor","agency","సప్లయర్","డిస్ట్రిబ్యూటర్"],
+  batch:["batch number","batch no","batch","బ్యాచ్"],
+  inv:["invoice number","invoice no","invoice","bill number","bill no","ఇన్వాయిస్","బిల్ నంబర్"],
+  lic:["licence number","license number","licence no","license no","licence","license","registration number","reg no","లైసెన్స్"],
+  landmark:["landmark","near","opposite","beside","దగ్గర","ఎదురుగా","పక్కన"],
+  title:["report name","document","report","prescription","bill","scan","రిపోర్ట్","ప్రిస్క్రిప్షన్"],
+ };
+ const SYN={
+  diabetes:["sugar","diabetes","diabetic","షుగర్","మధుమేహ","చక్కెర","డయాబెటిస్"],bp:["bp","blood pressure","hypertension","బీపీ","రక్తపోటు"],
+  heart:["heart","గుండె"],thyroid:["thyroid","థైరాయిడ్"],kidney:["kidney","కిడ్నీ"],anemia:["anemia","anaemia","రక్తహీనత"],acidity:["acidity","gas trouble","గ్యాస్","ఎసిడిటీ"],pregnancy:["pregnant","pregnancy","గర్భ"],
+  m:["male","man","boy","gents","పురుష","మగ"],f:["female","woman","lady","girl","ladies","స్త్రీ","ఆడ","మహిళ","అమ్మాయి"],
+  morning:["morning","ఉదయం","పొద్దున"],afternoon:["afternoon","noon","మధ్యాహ్నం"],night:["night","రాత్రి"],
+  before:["before food","before meal","before eating","భోజనానికి ముందు","తినక ముందు","అన్నానికి ముందు"],after:["after food","after meal","after eating","భోజనం తర్వాత","తిన్న తర్వాత","అన్నం తర్వాత"],
+  fasting:["fasting","empty stomach","పరగడుపు","ఖాళీ కడుపు"],random:["random"],
+  sugar:["sugar","glucose","షుగర్","చక్కెర"],pulse:["pulse","heart rate","నాడి","పల్స్"],spo2:["oxygen","spo2","saturation","ఆక్సిజన్"],temp:["temperature","fever","జ్వరం","టెంపరేచర్"],weight:["weight","బరువు"],
+  hospital:["hospital","ఆసుపత్రి","హాస్పిటల్"],clinic:["clinic","క్లినిక్"],doctor:["doctor","డాక్టర్"],lab:["lab","laboratory","ల్యాబ్"],
+  delivery:["delivery","deliver","home","ఇంటికి","డెలివరీ"],pickup:["pick up","pickup","collect","నేనే వస్తా","తీసుకుంటా"],
+  rx:["prescription","ప్రిస్క్రిప్షన్"],report:["report","test","రిపోర్ట్","పరీక్ష"],bill:["bill","బిల్"],scan:["scan","x-ray","xray","స్కాన్"],
+ };
+ const STOP=new Set(["is","my","the","and","a","an","i","am","im","patient","years","year","old","of","to","in","at","on","with","have","has","also","problem","please","sir","madam","ok","okay","this","that","it","he","she","we","our","your","me",
+  "నా","మా","మరియు","ఉంది","ఉన్నాను","ఉన్నారు","ఉన్నది","గారు","అని","లో","కి","కు","కూడా","సమస్య","వ్యాధి","నేను","మేము","ఇది","అది","అండి","గారి","వారు","ఉంటుంది","ఉంటాను"]);
+ const MONTHS={jan:1,feb:2,mar:3,apr:4,may:5,jun:6,jul:7,aug:8,sep:9,oct:10,nov:11,dec:12,"జనవరి":1,"ఫిబ్రవరి":2,"మార్చి":3,"ఏప్రిల్":4,"మే":5,"జూన్":6,"జూలై":7,"ఆగస్టు":8,"సెప్టెంబర్":9,"అక్టోబర్":10,"నవంబర్":11,"డిసెంబర్":12};
+ const pad=n=>String(n).padStart(2,"0");
+ const ymd=d=>d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate());
+
+ function analyse(raw){
+  let text=norm(raw);
+  // spoken number words -> digits (only standalone words)
+  text=text.replace(/(^|\s)(zero|one|two|three|four|five|six|seven|eight|nine|ten|ఒకటి|రెండు|మూడు|నాలుగు|ఐదు|ఆరు|ఏడు|ఎనిమిది|తొమ్మిది|పది)(?=\s|$|[,.])/gi,(m,a,w)=>a+NUMW[w.toLowerCase()]);
+  const low=text.toLowerCase();
+  const used=[];const mark=(s,e)=>{if(s!=null&&e>s)used.push([s,e])};
+  const R={};
+  // phones: runs of digits/spaces/dashes that collapse to 10 (or 91+10) digits
+  R.phones=[];
+  for(const m of low.matchAll(/(?:\+?\s*9\s*1[\s-]*)?[6-9](?:[\s-]*\d){9}(?!\d)/g)){
+   const d=m[0].replace(/\D/g,"");const ph=d.length===12&&d.startsWith("91")?d.slice(2):d.length===10?d:null;if(!ph)continue;
+   const before=low.slice(Math.max(0,m.index-40),m.index);
+   const kind=findCue(before,C.emerg)?"em":findCue(before,C.doctor)?"doc":"own";
+   R.phones.push({ph,kind});mark(m.index,m.index+m[0].length);
+  }
+  // blood pressure 140/90, 140 by 90, 140 over 90
+  let m=low.match(/(\d{2,3})\s*(?:\/|by|over|బై|ఓవర్)\s*(\d{2,3})/);
+  if(m){const a=+m[1],b=+m[2];if(a>=70&&a<=260&&b>=40&&b<=160&&a>b){R.sys=a;R.dia=b;mark(m.index,m.index+m[0].length)}}
+  // age
+  m=low.match(/(?:^|[^a-z])(?:age|వయసు|వయస్సు|ఏజ్)\s*(?:is|:|-)?\s*(\d{1,3})/)||low.match(/(\d{1,3})\s*(?:years?|yrs?|y\/o|ఏళ్ళు|ఏళ్లు|ఏండ్లు|సంవత్సరాలు|సంవత్సరాల|సం\.?)(?:\s*(?:old|వయసు))?/);
+  if(m&&+m[1]>0&&+m[1]<=110){R.age=+m[1];mark(m.index,m.index+m[0].length)}
+  // weight / height
+  m=low.match(/(?:^|[^a-z])(?:weight|wt|బరువు)\s*(?:is|:|-)?\s*(\d{2,3}(?:\.\d)?)/)||low.match(/(\d{2,3}(?:\.\d)?)\s*(?:kgs?|kilos?|kilograms?|కిలోలు|కిలో|కేజీలు|కేజీ)/);
+  if(m&&+m[1]>=2&&+m[1]<=250){R.weight=+m[1];mark(m.index,m.index+m[0].length)}
+  m=low.match(/(\d{3})\s*(?:cm|cms|centimet|సెం)/)||low.match(/(?:height|ఎత్తు)\s*(?:is|:)?\s*(\d{3})/);
+  if(m&&+m[1]>=80&&+m[1]<=230){R.height=+m[1];mark(m.index,m.index+m[0].length)}
+  else{m=low.match(/(\d)\s*(?:feet|foot|ft|అడుగులు|అడుగుల)\s*(\d{1,2})?\s*(?:inch(?:es)?|in|అంగుళాలు)?/);if(m){R.height=Math.round((+m[1]*12+(+m[2]||0))*2.54);mark(m.index,m.index+m[0].length)}}
+  // blood group
+  m=low.match(/(?:^|[^a-z])(ab|a|b|o)\s*(\+|-|positive|negative|plus|minus|ve\b|పాజిటివ్|నెగటివ్)/);
+  if(m){const neg=/-|negative|minus|నెగటివ్/.test(m[2]);R.blood=m[1].toUpperCase()+(neg?"-":"+");mark(m.index,m.index+m[0].length)}
+  // vitals with a keyword before the number
+  const kv=(keys,rx)=>{const c=findCue(low,keys);if(!c)return null;const mm=low.slice(c[1],c[1]+25).match(rx||/^\D{0,12}?(\d{2,3}(?:\.\d)?)/);if(!mm)return null;mark(c[0],c[1]+mm[0].length);return +mm[1]};
+  R.sugar=kv(SYN.sugar);R.pulse=kv(SYN.pulse.concat(["hr","bpm"]));R.spo2=kv(SYN.spo2);R.temp=kv(SYN.temp);
+  if(R.pulse==null){const mm=low.match(/(\d{2,3})\s*bpm/);if(mm){R.pulse=+mm[1];mark(mm.index,mm.index+mm[0].length)}}
+  if(R.spo2==null){const mm=low.match(/(\d{2,3})\s*%/);if(mm&&+mm[1]>=70&&+mm[1]<=100&&/o2|oxygen|spo|ఆక్సిజన్/.test(low)){R.spo2=+mm[1];mark(mm.index,mm.index+mm[0].length)}}
+  // quantities, days, dose, price
+  m=low.match(/(\d{1,4})\s*(?:strips?|tablets?|tabs|pieces|pcs|boxes|bottles|nos|units|packets?|స్ట్రిప్‌?లు|స్ట్రిప్స్|మాత్రలు|బాటిల్స్|డబ్బాలు)/)||low.match(/(?:quantity|qty|సంఖ్య)\s*(?:is|:)?\s*(\d{1,4})/);
+  if(m){R.qty=+m[1];mark(m.index,m.index+m[0].length)}
+  m=low.match(/(\d{1,3})\s*(?:days|రోజులు|రోజుల|రోజు)/);if(m){R.days=+m[1];mark(m.index,m.index+m[0].length)}
+  m=low.match(/(\d+(?:\.\d+)?)\s*(mg|ml|mcg|gm|g|iu|units?)\b/);if(m){R.dose=m[1]+" "+m[2];R.strength=m[0];mark(m.index,m.index+m[0].length)}
+  m=low.match(/(?:rs\.?|rupees|₹|price|ధర|రూపాయలు)\s*(\d+(?:\.\d+)?)/)||low.match(/(\d+(?:\.\d+)?)\s*(?:rupees|రూపాయలు|rs\b)/);if(m){R.price=+m[1];mark(m.index,m.index+m[0].length)}
+  m=low.match(/(?:reorder|minimum|min stock)\D{0,10}(\d{1,4})/);if(m){R.reorder=+m[1];mark(m.index,m.index+m[0].length)}
+  // dates
+  const now=new Date();
+  m=low.match(/(\d{1,2})[\/\-.](\d{1,2})[\/\-.](\d{2,4})/);
+  if(m){let y=+m[3];if(y<100)y+=2000;const d=new Date(y,+m[2]-1,+m[1]);if(!isNaN(d)){R.date=ymd(d);mark(m.index,m.index+m[0].length)}}
+  else if(/today|ఈరోజు|ఇవాళ/.test(low))R.date=ymd(now);
+  else if(/yesterday|నిన్న/.test(low)){const d=new Date(now);d.setDate(d.getDate()-1);R.date=ymd(d)}
+  // expiry month
+  const ec=findCue(low,["expiry date","expiry","exp","ఎక్స్‌పైరీ","ఎక్స్పైరీ"]);
+  if(ec){const tail=low.slice(ec[1],ec[1]+30);let mm=tail.match(/(\d{1,2})\s*[\/\-.\s]\s*(\d{2,4})/);let mo,yr;
+   if(mm){mo=+mm[1];yr=+mm[2]}else{mm=tail.match(/([a-z]{3}|[ఀ-౿]+)[a-z]*\s*(\d{2,4})/);if(mm&&MONTHS[mm[1]]){mo=MONTHS[mm[1]];yr=+mm[2]}}
+   if(mo>=1&&mo<=12&&yr){if(yr<100)yr+=2000;R.expiry=yr+"-"+pad(mo);mark(ec[0],ec[1]+(mm?mm.index+mm[0].length:0))}}
+  R.keys={};for(const[k,ws]of Object.entries(SYN)){const c=findCue(low,ws);if(c){R.keys[k]=c[0];mark(c[0],c[1])}}
+  const SYNW=new Set([].concat(...Object.values(SYN)).filter(w=>!w.includes(" ")));
+  // text captured after cue words
+  const STOPCUES=[].concat(...Object.values(C),["age","వయసు","weight","బరువు","phone","mobile","ఫోన్","నంబర్","number","bp","sugar","షుగర్","blood group","బ్లడ్ గ్రూప్","and","మరియు","ph","tel","mob","cell","sex","gender","dob","date","op","uhid","reg","ip","registration","licence","license","invoice","batch","expiry","bill"]);
+  const capAfter=(cues,maxW)=>{const c=findCue(low,cues);if(!c)return null;
+   let rest=text.slice(c[1]).replace(/^\s*(?:is|was|:|-|ది|గా)?\s*:?\s*/i,"");const off=text.length-rest.length;rest=rest.split("\n")[0];
+   const words=[];let consumed=0;
+   for(const w of rest.split(/ +/)){if(!w)break;const wl=w.toLowerCase().replace(/[,.;:।|]+$/,"");
+    if(/\d/.test(w)||STOPCUES.includes(wl)||SYNW.has(wl)||(words.length&&STOP.has(wl)))break;
+    if(!STOP.has(wl))words.push(w.replace(/[,.;:।|]+$/,""));consumed+=w.length+1;if(/[,.;:।|]$/.test(w)||words.length>=maxW)break}
+   if(!words.length)return null;mark(c[0],off+consumed);return words.join(" ")};
+  const capBefore=cues=>{const c=findCue(low,cues);if(!c)return null;const head=text.slice(0,c[0]).split("\n").pop();const ws=head.trim().split(/ +/);const got=[];
+   for(let i=ws.length-1;i>=0&&got.length<2;i--){const w=ws[i].replace(/[,.;:]+$/,"");const wl=w.toLowerCase();if(!w||/\d/.test(w)||STOP.has(wl)||SYNW.has(wl)||STOPCUES.includes(wl))break;got.unshift(w)}
+   if(!got.length)return null;const st=c[0]-head.length+head.lastIndexOf(got[0]);mark(st,c[1]);return got.join(" ")};
+  const nameWithCue=cues=>{const c=findCue(low,cues);if(!c)return null;const head=text.slice(0,c[0]).split("\n").pop();const ws=head.trim().split(/ +/);const got=[];
+   for(let i=ws.length-1;i>=0&&got.length<3;i--){const w=ws[i].replace(/[,.;:]+$/,"");const wl=w.toLowerCase();if(!w||/\d/.test(w)||STOP.has(wl)||SYNW.has(wl)||STOPCUES.includes(wl))break;got.unshift(w)}
+   if(!got.length)return null;const cw=text.slice(c[0],c[1]);const st=c[0]-head.length+head.lastIndexOf(got[0]);mark(st,c[1]);return got.join(" ")+" "+cw.charAt(0).toUpperCase()+cw.slice(1)};
+  R.name=capAfter(C.name,3);R.place=capAfter(C.place,4)||capBefore(["village","ఊరు","గ్రామం","town","mandal","మండలం","district","జిల్లా","colony","కాలనీ"]);R.doctor=capAfter(C.doctor,3);R.allergy=capAfter(C.allergy,5);R.surgery=capAfter(C.surgery,5);
+  R.emName=capAfter(C.emerg,3);R.shop=nameWithCue(["medical hall","medicals","medical","pharmacy","మెడికల్స్","మెడికల్"])||capAfter(C.shop,4);R.hosp=nameWithCue(["hospital","clinic","ఆసుపత్రి","హాస్పిటల్","క్లినిక్"])||capAfter(C.hosp,4);R.med=capAfter(C.med,3);R.supplier=capAfter(C.supplier,4);R.landmark=capAfter(C.landmark,4);
+  const tok=cues=>{const c=findCue(low,cues);if(!c)return null;const mm=text.slice(c[1]).match(/^\s*(?:number|no\.?|is|:)?\s*([A-Za-z0-9\/\-]{3,20})/i);if(!mm)return null;mark(c[0],c[1]+mm[0].length);return mm[1].toUpperCase()};
+  R.batch=tok(C.batch);R.inv=tok(C.inv);R.lic=tok(C.lic);
+  // leftovers: word groups not used by anything above, in spoken order
+  const chars=[...text];used.forEach(([s,e])=>{for(let i=s;i<e&&i<chars.length;i++)chars[i]="|"});
+  const NOISE=new Set(["bpm","mmhg","date","steps","time","pm","am","phone","mobile","number","no","ph","cell","contact","blood","group","bloodgroup","quantity","qty","kg","kgs","kilo","kilos","strip","strips","tablets","units","ఫోన్","నంబర్","మొబైల్","బ్లడ్","గ్రూప్","కిలోలు","కిలో","కేజీ","స్ట్రిప్స్","సంఖ్య","రోజులు","ఏళ్ళు","సంవత్సరాలు"]);
+  R.left=chars.join("").split(/[|,.;:।\n]+|\s\d+\s|\s(?:and|మరియు)\s/).map(g=>g.trim().split(/\s+/).filter(w=>w&&!STOP.has(w.toLowerCase())&&!NOISE.has(w.toLowerCase())&&!/\d/.test(w)).join(" ")).filter(g=>g&&g.split(" ").length<=4&&/[a-zA-Zఀ-౿]{2,}/.test(g));
+  R.text=text;return R;
+ }
+ // which kind of value a field wants, from its name and label
+ function kindOf(name,f){const l=(f.label||"").toLowerCase();
+  if(/^(phone|pphone|mobile)$/.test(name))return"phone";if(name==="emPhone")return"emPhone";if(name==="doctorPhone")return"docPhone";
+  if(name==="emName")return"emName";if(name==="doctor")return"doctor";if(name==="pname")return"person";
+  if(name==="name"){if(/medicine|మందు|tablet/.test(l))return"med";if(/shop|షాప్|pharmacy/.test(l))return"shop";if(/hospital|ఆసుపత్రి|clinic/.test(l))return"hosp";if(/document|report|రిపోర్ట్|doc/.test(l))return"title";return"person"}
+  if(name==="med")return"med";if(["address","addr","area"].includes(name))return"place";if(name==="landmark")return"landmark";
+  if(name==="allergies")return"allergy";if(name==="surgeries")return"surgery";if(name==="title")return"title";
+  return name;
+ }
+ function fill(schema,raw,hasItems){
+  const R=analyse(raw);const out={};const left=R.left.slice();
+  const takeLeft=()=>left.length?left.shift():null;
+  const phones={own:R.phones.filter(p=>p.kind==="own").map(p=>p.ph),em:R.phones.filter(p=>p.kind==="em").map(p=>p.ph),doc:R.phones.filter(p=>p.kind==="doc").map(p=>p.ph)};
+  const entries=Object.entries(schema);
+  // first pass: everything except leftovers
+  const needLeft=[];
+  for(const[name,f]of entries){
+   if(name==="items")continue;const k=kindOf(name,f);let v=null;
+   if(f.type==="one"||f.type==="multi"){
+    const opts=(f.options||[]).map(o=>String(o).split(" = ")[0]);
+    if(name==="blood"&&R.blood&&opts.includes(R.blood)){out[name]=R.blood;continue}
+    const hits=opts.filter(o=>R.keys[o]!=null||(()=>{const lab=(f.options.find(x=>String(x).startsWith(o+" = "))||"").split(" = ")[1];return lab&&lab.length>2&&R.text.toLowerCase().includes(lab.toLowerCase())})());
+    if(hits.length)out[name]=f.type==="multi"?hits:hits.sort((a,b)=>(R.keys[a]??1e9)-(R.keys[b]??1e9))[0];
+    continue;
+   }
+   switch(k){
+    case"phone":v=phones.own.shift()||null;break;case"emPhone":v=phones.em.shift()||null;break;case"docPhone":v=phones.doc.shift()||null;break;
+    case"person":v=R.name;if(!v)needLeft.push([name,"person"]);break;case"place":v=R.place;if(!v)needLeft.push([name,"place"]);break;
+    case"emName":v=R.emName;break;case"doctor":v=R.doctor;break;case"landmark":v=R.landmark;break;case"allergy":v=R.allergy;break;case"surgery":v=R.surgery;break;
+    case"med":v=R.med?(R.strength&&!R.med.includes(R.strength)?R.med+" "+R.strength:R.med):null;if(!v)needLeft.push([name,"med"]);break;
+    case"shop":v=R.shop;if(!v)needLeft.push([name,"shop"]);break;case"hosp":v=R.hosp;if(!v)needLeft.push([name,"hosp"]);break;
+    case"title":needLeft.push([name,"title"]);break;case"supplier":v=R.supplier;break;case"batch":v=R.batch;break;case"inv":v=R.inv;break;case"lic":case"regNo":v=R.lic;break;
+    case"age":v=R.age;break;case"weight":v=R.weight;break;case"height":v=R.height;break;case"sys":v=R.sys;break;case"dia":v=R.dia;break;
+    case"qty":case"stock":v=R.qty;break;case"days":v=R.days;break;case"dose":v=R.dose;break;case"price":v=R.price;break;case"reorder":v=R.reorder;break;
+    case"expiry":v=R.expiry;break;case"date":case"start":v=R.date;break;
+    case"value":v=R.sugar??R.pulse??R.spo2??R.temp??(schema.type?null:R.weight);break;
+   }
+   if(v!=null&&v!=="")out[name]=v;
+  }
+  // vitals: pick the reading type from what was said, and the matching value
+  if(schema.type&&schema.value){const ty=R.sys?"bp":R.sugar!=null?"sugar":R.pulse!=null?"pulse":R.spo2!=null?"spo2":R.temp!=null?"temp":R.weight!=null?"weight":null;
+   if(ty&&(schema.type.options||[]).some(o=>String(o).startsWith(ty)))out.type=ty;
+   const extra=[["sugar",R.sugar,"Sugar"],["pulse",R.pulse,"Pulse"],["spo2",R.spo2,"SpO2"],["temp",R.temp,"Temp"]].filter(([k,v])=>v!=null&&k!==out.type).map(([,v,l])=>l+": "+v);if(R.sys&&out.type!=="bp")extra.unshift("BP: "+R.sys+"/"+R.dia);
+   if(extra.length)left.unshift(...extra)}
+  if(schema.type&&schema.value){const ty=out.type;const v=ty==="sugar"?R.sugar:ty==="pulse"?R.pulse:ty==="spo2"?R.spo2:ty==="temp"?R.temp:ty==="weight"?R.weight:null;if(v!=null)out.value=v;else delete out.value}
+  // leftover word groups: person name first, then place
+  needLeft.sort((a,b)=>["person","shop","hosp","med","place","title"].indexOf(a[1])-["person","shop","hosp","med","place","title"].indexOf(b[1]));
+  for(const[name,kind]of needLeft){const g=takeLeft();if(g)out[name]=kind==="med"&&R.strength?g+" "+R.strength:g}
+  // order lists: "Dolo 650 two strips and Pan 40 one strip"
+  if(hasItems){const items=[];
+   for(const seg of R.text.split(/,|;|\sand\s|\sమరియు\s|\n/)){const s=seg.trim();if(!s)continue;
+    const q=s.match(/(\d{1,3})\s*(?:strips?|tablets?|tabs|pieces|pcs|boxes|bottles|nos|units|packets?|స్ట్రిప్‌?లు|స్ట్రిప్స్|మాత్రలు)/i);
+    const name=s.replace(q?q[0]:"","").replace(/\b(please|send|i need|need|order|give)\b/gi,"").trim();
+    const nl=name.toLowerCase();const isKey=Object.values(SYN).some(ws=>findCue(nl,ws)&&nl.replace(/home|please|to|my/g,"").trim().length<=14);
+    if(name&&/[a-zA-Zఀ-౿]{2,}/.test(name)&&!isKey&&!findCue(nl,C.name))items.push({name:name.slice(0,60),qty:q?+q[1]:1})}
+   if(items.length){out.items=items;left.length=0}}
+  out._other=left.slice(0,6);
+  return out;
+ }
+ // free photo reading (printed text) — loaded only when a photo is used
+ let ocrP=null;
+ function loadOcr(){if(ocrP)return ocrP;ocrP=new Promise((res,rej)=>{if(window.Tesseract)return res(window.Tesseract);const s=document.createElement("script");s.src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js";s.onload=()=>res(window.Tesseract);s.onerror=()=>{ocrP=null;rej(new Error("ocr"))};document.head.appendChild(s)});return ocrP}
+ let worker=null;
+ async function readPhotos(files,onStep){
+  const T=await loadOcr();
+  if(!worker){try{worker=await T.createWorker(["eng","tel"])}catch(e){worker=await T.createWorker("eng")}}
+  const parts=[];let i=0;
+  for(const f of files){i++;onStep&&onStep(i,files.length);const r=await worker.recognize(f);parts.push(r&&r.data&&r.data.text||"")}
+  return parts.join("\n");
+ }
+ // spoken guide: what to say for this form
+ function guide(schema){
+  const labs=Object.entries(schema).filter(([n,f])=>!["notes","note","mapLink","url","at"].includes(n)&&f.label).map(([,f])=>String(f.label).replace(/\(.*?\)/g,"").trim()).filter(Boolean).slice(0,8);
+  return labs;
+ }
+ return{analyse,fill,readPhotos,guide};
+})();
+
 function attachSmart(card){
- if(!CAP.sample)return;const form=card.querySelector("form");if(!form||form.dataset.nosf)return;
- form.insertAdjacentHTML("afterbegin",`<div class="smartbar"><div class="sbh">✨ ${t("smartFill")}</div><div class="btnrow">${CAP.sampleImg?`<label class="btn ghost sm" style="margin:0">📷 ${t("sfPhoto")}<input type="file" accept="${esc(imgAccept())}" multiple data-sf="photo" style="display:none"></label>`:""}<button type="button" class="btn ghost sm" data-sf="voice">🎤 ${t("sfVoice")}</button></div>
-  <div class="sfvoice" hidden><textarea id="sf_text" rows="3" maxlength="2000" placeholder="${esc(t("sfSay"))}"></textarea>${micRow("sf_text")}${kbTip()}<button type="button" class="btn sm" data-sf="go">${t("sfGo")}</button></div><div class="sfres small"></div></div>`);
+ const form=card.querySelector("form");if(!form||form.dataset.nosf)return;
+ const ai=!!CAP.sample;const other=LANG==="te"?"en":"te";
+ form.insertAdjacentHTML("afterbegin",`<div class="smartbar"><div class="sbh">🎤 ${t("sbTitle")}</div>
+  <div class="btnrow">${CAP.dict?`<button type="button" class="btn sm" data-mic="sf_text" data-lang="${LANG==="te"?"te":"en"}" data-sf="speak">🎤 ${LANG==="te"?t("speakTe"):t("speakEn")}</button><button type="button" class="btn ghost sm" data-mic="sf_text" data-lang="${other}" data-sf="speak">🎤 ${other==="te"?t("speakTe"):t("speakEn")}</button>`:""}
+  <label class="btn ghost sm" style="margin:0">📷 ${t("sfPhoto")}<input type="file" accept="image/*" multiple data-sf="photo" style="display:none"></label>
+  <button type="button" class="btn ghost sm" data-sf="type">⌨️ ${t("sfType")}</button>${CAP.tts?`<button type="button" class="btn ghost sm" data-sf="guide">🔊 ${t("sfGuide")}</button>`:""}</div>
+  <div class="sfvoice" hidden><textarea id="sf_text" rows="3" maxlength="2000" placeholder="${esc(t("sfSay"))}"></textarea><button type="button" class="btn sm" data-sf="go">${t("sfGo")}</button></div><div class="sfres small"></div></div>`);
  const bar=form.querySelector(".smartbar");const res=bar.querySelector(".sfres");
+ const schemaNow=()=>formSchema(form);
+ const labelOf=(sc,k)=>String((sc[k]&&sc[k].label)||k).replace(/\s*\(.*?\)\s*/g," ").trim();
+ const showOut=(sc,out,n)=>{
+  const shown=Object.entries(out).filter(([k,v])=>!k.startsWith("_")&&v!=null&&v!==""&&(k==="items"||sc[k])).map(([k,v])=>{
+   if(k==="items")return [t("sfItems"),v.map(x=>x.name+(x.qty>1?" × "+x.qty:"")).join(", ")];
+   const f=sc[k];const show=x=>{const o=(f.options||[]).find(y=>String(y).startsWith(x+" = "));return o?String(o).split(" = ")[1]:x};
+   return [labelOf(sc,k),Array.isArray(v)?v.map(show).join(", "):show(v)]});
+  const oth=(out._other||[]).filter(Boolean);
+  res.innerHTML=shown.length?`<div class="sfgot"><b>✓ ${t("sfUnderstood")}</b>${shown.map(([l,v])=>`<div>${esc(l)}: <b>${esc(String(v))}</b></div>`).join("")}${oth.length?`<div class="muted" style="margin-top:4px">${t("sfOther")}: ${esc(oth.join(" · "))}</div>`:""}<div class="muted" style="margin-top:4px">${t("sfCheck")}</div>${CAP.tts?`<button type="button" class="btn ghost sm" data-sf="readback" style="margin-top:6px">🔊 ${t("sfReadBack")}</button>`:""}</div>`
+   :`<div>${t("sfNone")}</div>`;
+  bar.__readback=shown.map(([l,v])=>l+": "+v).join(". ");
+ };
  const run=async(images,said)=>{
-  const schema=formSchema(form);bar.querySelectorAll("button,input").forEach(b=>b.disabled=true);res.innerHTML=`<span class="muted">${t("sfReading")}</span>`;
+  const sc=schemaNow();bar.querySelectorAll("button,input").forEach(b=>b.disabled=true);res.innerHTML=`<span class="muted">${t("sfReading")}</span>`;
   if(images&&typeof form.__sfPhoto==="function")try{form.__sfPhoto(images)}catch(e){}
-  try{const out=await runSmart(sfPrompt(schema,said),images);const n=fillForm(form,out&&typeof out==="object"?out:{});
-   const other=Array.isArray(out&&out._other)?out._other.map(String).filter(Boolean).slice(0,12):[];const unc=Array.isArray(out&&out._unclear)?out._unclear.map(String).filter(Boolean).slice(0,8):[];
-   const notesEl=[...form.elements].find(e=>["notes","note"].includes(e.name)&&(e.tagName==="TEXTAREA"||e.type==="text"));let used=false;
-   if(other.length&&notesEl){notesEl.value=((notesEl.value?notesEl.value+"\n":"")+other.join("\n")).slice(0,notesEl.maxLength>0?notesEl.maxLength:2000);notesEl.classList.add("sf-hit");used=true}
-   res.innerHTML=(n||used?`<div style="color:var(--ok)">✓ ${t("sfDone",{n:n+(used?other.length:0)})}</div>`:`<div>${t("sfNone")}</div>`)+(other.length&&!used?`<div style="margin-top:4px"><b>${t("sfOther")}:</b> ${esc(other.join(" · "))}</div>`:"")+(unc.length?`<div style="margin-top:4px;color:var(--warn)"><b>${t("sfUnclear")}:</b> ${esc(unc.join(" · "))}</div>`:"");
-   bar.querySelector(".sfvoice").hidden=true;
-  }catch(e){res.innerHTML=`<span style="color:var(--bad)">${esc(aiErr(e))}</span>`}
+  try{
+   if(ai){const out=await runSmart(sfPrompt(sc,said),images);const o=out&&typeof out==="object"?out:{};const n=fillForm(form,o);showOut(sc,o,n)}
+   else{let text=said||"";
+    if(images&&images.length){try{text=await LS.readPhotos(images,(i,n)=>{res.innerHTML=`<span class="muted">${esc(t("sfPhotoStep",{i,n}))}</span>`})}catch(e){res.innerHTML=`<span style="color:var(--bad)">${t("sfPhotoFail")}</span>`;return}}
+    const o=LS.fill(sc,text,typeof form.__sfItems==="function");const n=fillForm(form,o);
+    const keep=Object.fromEntries(Object.entries(o).filter(([k])=>k.startsWith("_")||k==="items"||[...form.elements].some(e=>e.name===k&&(e.classList.contains("sf-hit")||e.checked))));
+    showOut(sc,keep,n);
+   }
+   bar.querySelector(".sfvoice").hidden=!said;
+  }catch(e){res.innerHTML=`<span style="color:var(--bad)">${esc(ai?aiErr(e):t("tryAgain"))}</span>`}
   finally{bar.querySelectorAll("button,input").forEach(b=>b.disabled=false)}
  };
+ window.__sfAuto=tx=>{if(document.body.contains(bar))run(null,tx)};
  bar.addEventListener("change",e=>{e.stopPropagation();const inp=e.target.closest("[data-sf=photo]");if(!inp)return;const files=[...(inp.files||[])];inp.value="";if(files.length)run(files,null)});
  bar.addEventListener("input",e=>e.stopPropagation());
- bar.addEventListener("click",e=>{const b=e.target.closest("button[data-sf]");if(!b)return;
-  if(b.dataset.sf==="voice"){const v=bar.querySelector(".sfvoice");v.hidden=!v.hidden;if(!v.hidden)v.querySelector("textarea").focus()}
+ bar.addEventListener("click",e=>{const b=e.target.closest("button[data-sf]");if(!b)return;const v=bar.querySelector(".sfvoice");
+  if(b.dataset.sf==="speak"){v.hidden=false;return}
+  if(b.dataset.sf==="type"){v.hidden=!v.hidden;if(!v.hidden)v.querySelector("textarea").focus();return}
+  if(b.dataset.sf==="guide"&&CAP.tts){const labs=LS.guide(schemaNow());CAP.tts.speak(t("sfGuideSay",{list:labs.join(", ")}),{language:LANG}).catch(()=>{});return}
+  if(b.dataset.sf==="readback"&&CAP.tts&&bar.__readback){CAP.tts.speak(bar.__readback,{language:LANG}).catch(()=>{});return}
   if(b.dataset.sf==="go"){const tx=bar.querySelector("#sf_text").value.trim();if(tx)run(null,tx)}});
 }
 
@@ -2229,7 +2472,7 @@ function vAuth(){
   ${m==="email"?`<label>${t("password")}<input name="password" type="password" required minlength="6" autocomplete="current-password"></label>`:""}
   ${msg}<button class="btn block" id="authbtn">${m==="reset"?t("sendReset"):t("signIn")}</button></form>`;
  else form=`<form id="authf">
-  <label>${t("mobile")}<input name="phone" type="tel" inputmode="numeric" maxlength="16" required autocomplete="tel-national" placeholder="98xxxxxxxx"></label>
+  <label>${t("mobile")}<input id="authphone" name="phone" type="tel" inputmode="numeric" maxlength="16" required autocomplete="tel-national" placeholder="98xxxxxxxx"></label>${micRow("authphone")}
   ${PIN_INPUT("pin",t("pin"),m==="up"?"new-password":"current-password")}
   ${m==="up"?PIN_INPUT("pin2",t("pin2"),"new-password"):""}
   ${msg}<button class="btn block" id="authbtn">${m==="up"?t("signUp"):t("signIn")}</button></form>`;
