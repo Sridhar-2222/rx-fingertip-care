@@ -421,7 +421,7 @@ const T={
  pinNote:["Keep your PIN secret. Do not share it with anyone, including on WhatsApp.","మీ PIN రహస్యంగా ఉంచండి. వాట్సాప్‌లో సహా ఎవరికీ చెప్పకండి."],
  tryAgain:["Something went wrong. Please try again.","ఏదో పొరపాటు జరిగింది. మళ్ళీ ప్రయత్నించండి."],
  hospital:["Hospital","ఆసుపత్రి"],pharmacy:["Pharmacy","ఫార్మసీ"],call:["Call","కాల్"],remove:["Remove","తీసివేయండి"],
- enrolledAt:["Enrolled on {d}","{d} న చేర్చారు"],myCare:["My pharmacy & hospital","నా ఫార్మసీ & ఆసుపత్రి"],enrolledOn:["enrolled you on {d}","{d} న మిమ్మల్ని చేర్చారు"],
+ hospadmin:["Hospital","ఆసుపత్రి"],enrolledAt:["Enrolled on {d}","{d} న చేర్చారు"],myCare:["My pharmacy & hospital","నా ఫార్మసీ & ఆసుపత్రి"],enrolledOn:["enrolled you on {d}","{d} న మిమ్మల్ని చేర్చారు"],
  fromHosp:["From hospitals","ఆసుపత్రుల నుండి"],hospAdmin:["Hospital","ఆసుపత్రి"],regHosp:["Register your hospital","మీ ఆసుపత్రి నమోదు చేయండి"],
  regHospIntro:["Register once. After Rx Fingertip Care approves you, you can enrol patients and send reports, prescriptions and bills straight to their health vault.","ఒక్కసారి నమోదు చేయండి. Rx Fingertip Care ఆమోదించిన తర్వాత రోగులను చేర్చి, రిపోర్టులు, ప్రిస్క్రిప్షన్లు, బిల్లులు నేరుగా వారి హెల్త్ వాల్ట్‌కు పంపవచ్చు."],
  hospName:["Hospital name","ఆసుపత్రి పేరు"],regNo:["Registration / licence no.","నమోదు / లైసెన్స్ నంబర్"],emergencyNo:["Emergency number","అత్యవసర నంబర్"],
@@ -515,6 +515,7 @@ const ICON={
  home:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>',
  patient:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="8" width="18" height="8" rx="4"/><path d="M12 8v8"/></svg>',
  diet:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21c-4.4 0-8-3.6-8-8 0-3 2-6 5-6 1.2 0 2.2.4 3 1 .8-.6 1.8-1 3-1 3 0 5 3 5 6 0 4.4-3.6 8-8 8z"/><path d="M12 8c0-2 1-4 3-5"/></svg>',
+ hospadmin:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><path d="M5 21V7l7-4 7 4v14"/><path d="M12 9v6M9 12h6"/></svg>',
  chemist:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9h16v11a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1z"/><path d="M3 9l2-5h14l2 5"/><path d="M12 12v6M9 15h6"/></svg>',
  check:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5 10 17l9-10"/></svg>',
  edit:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4L19 9l-4-4L4 16z"/></svg>',
@@ -811,8 +812,8 @@ function weekAdherence(){
 }
 
 /* ---------- routing & render ---------- */
-const ROUTES=["home","patient","diet","chemist"];
-const SUB=["health","vault","location","hospitals","videos","chat","vitals","hospadmin"];
+const ROUTES=["home","patient","diet","chemist","hospadmin"];
+const SUB=["health","vault","location","hospitals","videos","chat","vitals"];
 let route="home";
 const UI={dietDay:new Date().getDay(),ctab:"orders",ofilter:"active",q:"",hq:"",hk:"all",vc:"all",vt:"all",h1q:"",req:"",dist:"",reqAt:undefined,reqDirty:false};
 function readRoute(){const h=(location.hash||"").replace("#","");route=ROUTES.includes(h)||SUB.includes(h)?h:"home"}
@@ -1393,7 +1394,7 @@ async function viewHo(id){
 /* hospital: registration + dashboard */
 function vHospAdmin(){
  const h=myHosp();
- let s=`<div class="sec-h" style="margin-top:0"><a class="btn ghost sm" href="#home">‹ ${t("back")}</a><h2 style="flex:1">🏥 ${t("hospAdmin")}</h2>${h?`<button class="iconbtn" data-act="hospReg" aria-label="${t("edit")}">${ICON.edit}</button>`:""}</div>`;
+ let s=`<div class="sec-h" style="margin-top:0"><h2 style="flex:1">🏥 ${t("hospAdmin")}</h2>${h?`<button class="iconbtn" data-act="hospReg" aria-label="${t("edit")}">${ICON.edit}</button>`:""}</div>`;
  if(!Net.loaded)return s+`<div class="card muted">${t("loading")}</div>`;
  if(!h)return s+`<div class="card"><h2 style="margin-bottom:6px">${t("regHosp")}</h2><p class="muted">${t("regHospIntro")}</p><button class="btn block" data-act="hospReg">${t("regHosp")}</button></div>`;
  const d=h.data||{};
