@@ -44,6 +44,29 @@ and any other Patient Companion project.
   - Redirect URLs: the same URL, and the same URL followed by `**`
   - Email confirmation: ON
 
+## 3a. Login: mobile number + PIN (main way to sign in)
+
+Most target customers do not use email, so patients and chemists sign in with a
+**10-digit mobile number and a 6-digit PIN**. No email or SMS is sent.
+
+- Behind the scenes each number becomes an internal address `91XXXXXXXXXX@phone.rxfingertip.app`
+  (never emailed). The PIN is the Supabase password.
+- Accounts are created by the Edge Function **`pin-auth`** (source in
+  `supabase/functions/pin-auth/index.ts`, deployed with verify_jwt off because it checks callers itself):
+  - `signup` — creates a confirmed user and a row in `phone_accounts`; rejects a number already in use.
+  - `reset` — sets a new PIN for a number; **only users listed in `public.app_admins`** may call it.
+- Tables: `phone_accounts` (phone → user; no client access at all, only the function reads it) and
+  `app_admins` (owner's account is the only admin). The Supabase advisor note "RLS enabled, no policy"
+  on `phone_accounts` is intentional.
+- Forgot PIN: the patient visits the chemist / contacts the owner; the admin uses
+  **Profile → Reset a patient's PIN** after checking the person owns the number.
+- Signed-in users can change their own PIN from **Profile → Change PIN**.
+- Email + password sign-in is still there under "Sign in with email instead" for older/staff accounts.
+- Do **not** switch on "Leaked password protection" in Supabase Auth: it would reject common 6-digit PINs.
+- Tested 22 Nov 2026: live function (signup, duplicate, bad number, sign-in, wrong PIN,
+  reset blocked for non-admins and signed-out callers) and the app screens in a browser.
+  Still to test on the live site: an admin PIN reset by the owner.
+
 ## 4. Email (Brevo free plan, used as Supabase custom SMTP)
 
 - Host `smtp-relay.brevo.com`, port 587, sender name "Rx Fingertip Care",
@@ -75,10 +98,13 @@ Done:
 - [x] Signup confirmation email sent successfully
 - [x] Forgot-password email sent and link opened
 - [x] RLS on every table; two-account privacy test passed
+- [x] Mobile number + PIN login built and tested (see 3a)
 - [x] Owner's own account works (it was confirmed manually in Supabase during setup)
 
 Still to do (test on Android Chrome, on mobile data as well as Wi-Fi):
-- [ ] Register a **second, new** email account and confirm via the email link
+- [ ] Create an account with a **mobile number + PIN** on the live site and sign in on a second phone
+- [ ] Owner signs in (email) → Profile → Reset a patient's PIN → patient signs in with the new PIN
+- [ ] (Optional, email users only) Register a new email account and confirm via the email link
 - [ ] Sign in, sign out, sign in again
 - [ ] Forgot password → set a **different** new password → sign in with it
 - [ ] Wrong password shows a clear message

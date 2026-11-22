@@ -408,6 +408,17 @@ const T={
  checkEmail:["Account created. Check your email and tap the link to confirm, then sign in.","ఖాతా తెరిచాం. మీ ఈమెయిల్‌లో లింక్ నొక్కి నిర్ధారించి, తర్వాత సైన్ ఇన్ చేయండి."],
  resetSent:["Check your email for the reset link.","రీసెట్ లింక్ కోసం మీ ఈమెయిల్ చూడండి."],newPw:["Set a new password","కొత్త పాస్‌వర్డ్ పెట్టండి"],
  badLogin:["Wrong email or password.","ఈమెయిల్ లేదా పాస్‌వర్డ్ తప్పు."],notConfirmed:["Please confirm your email first (check your inbox).","ముందుగా మీ ఈమెయిల్ నిర్ధారించండి."],
+ mobile:["Mobile number","మొబైల్ నంబర్"],pin:["6-digit PIN","6 అంకెల PIN"],pin2:["Type the PIN again","PIN మళ్ళీ టైప్ చేయండి"],
+ pinMismatch:["The two PINs don't match.","రెండు PIN లు సరిపోలలేదు."],badPhone:["Enter a 10-digit mobile number.","10 అంకెల మొబైల్ నంబర్ ఇవ్వండి."],
+ badPinFmt:["PIN must be exactly 6 digits.","PIN సరిగ్గా 6 అంకెలు ఉండాలి."],phoneExists:["This mobile number already has an account. Please sign in.","ఈ మొబైల్ నంబర్‌కు ఇప్పటికే ఖాతా ఉంది. సైన్ ఇన్ చేయండి."],
+ badLoginPin:["Wrong mobile number or PIN.","మొబైల్ నంబర్ లేదా PIN తప్పు."],forgotPin:["Forgot PIN?","PIN మర్చిపోయారా?"],
+ forgotPinMsg:["Visit your chemist or contact Rx Fingertip Care. After checking it's you, they will set a new PIN for you.","మీ కెమిస్ట్‌ను కలవండి లేదా Rx Fingertip Care ను సంప్రదించండి. మీరేనని నిర్ధారించుకుని కొత్త PIN పెడతారు."],
+ useEmail:["Sign in with email instead","ఈమెయిల్‌తో సైన్ ఇన్"],usePhone:["Use mobile number","మొబైల్ నంబర్ వాడండి"],
+ changePin:["Change PIN","PIN మార్చండి"],changePw:["Change password","పాస్‌వర్డ్ మార్చండి"],newPin:["Set a new PIN","కొత్త PIN పెట్టండి"],
+ adminReset:["Reset a patient's PIN","రోగి PIN రీసెట్ చేయండి"],adminResetNote:["Only do this after checking the person in front of you owns this mobile number.","ఈ మొబైల్ నంబర్ ఎదుటి వ్యక్తిదేనని నిర్ధారించుకున్నాకే చేయండి."],
+ resetDone:["PIN reset. Tell the patient their new PIN.","PIN రీసెట్ అయింది. కొత్త PIN రోగికి చెప్పండి."],noAccount:["No account with this mobile number.","ఈ మొబైల్ నంబర్‌తో ఖాతా లేదు."],
+ pinNote:["Keep your PIN secret. Do not share it with anyone, including on WhatsApp.","మీ PIN రహస్యంగా ఉంచండి. వాట్సాప్‌లో సహా ఎవరికీ చెప్పకండి."],
+ tryAgain:["Something went wrong. Please try again.","ఏదో పొరపాటు జరిగింది. మళ్ళీ ప్రయత్నించండి."],
  signOut:["Sign out","సైన్ అవుట్"],signedInAs:["Signed in as","సైన్ ఇన్ అయిన ఖాతా"],offline:["No internet — changes will show when you're back online.","ఇంటర్నెట్ లేదు — తిరిగి ఆన్‌లైన్ అయ్యాక మార్పులు కనిపిస్తాయి."],
  authNote:["Your health details are private to your account. General guidance only, not medical advice. In an emergency call 108.","మీ ఆరోగ్య వివరాలు మీ ఖాతాకు మాత్రమే. ఇది సాధారణ సమాచారం, వైద్య సలహా కాదు. అత్యవసరంలో 108 కి కాల్ చేయండి."],
  lang_te:["Telugu","తెలుగు"],lang_en:["English","ఇంగ్లీష్"],lang_hi:["Hindi","హిందీ"],
@@ -995,7 +1006,8 @@ function profileForm(after){
   <div class="row2"><label>${t("height")}<input name="height" type="number" min="80" max="230" value="${esc(p.height||"")}"></label><label>${t("weight")}<input name="weight" type="number" min="20" max="250" step="0.1" value="${esc(p.weight||"")}"></label></div>
   <label>${t("activity")}<select name="activity">${[1,2,3,4].map(i=>`<option value="${i}" ${(+p.activity||1)===i?"selected":""}>${t("act"+i)}</option>`).join("")}</select></label>
   <label>${t("address")}<textarea name="address" maxlength="200">${esc(p.address||"")}</textarea></label>
-  <p class="small muted">${t("signedInAs")}: ${esc((window.__email||""))}</p>
+  <p class="small muted">${t("signedInAs")}: ${esc(accountLabel())}</p>
+  <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px"><button type="button" class="btn ghost sm" data-act="chpin">${isPhoneUser()?t("changePin"):t("changePw")}</button>${window.__admin?`<button type="button" class="btn ghost sm" data-act="adminreset">${t("adminReset")}</button>`:""}</div>
   <div class="actions"><button type="button" class="btn ghost" data-act="signout" style="color:var(--bad);margin-right:auto">${t("signOut")}</button><button type="button" class="btn ghost" data-close>${t("cancel")}</button><button class="btn" type="submit">${t("save")}</button></div></form>`,c=>{
   c.querySelector("#f").onsubmit=async e=>{e.preventDefault();const fd=new FormData(e.target);const o={};for(const k of ["name","phone","age","sex","height","weight","activity","address"])o[k]=String(fd.get(k)||"").trim();
    closeSheet();try{await savePriv("profile",o);toast(t("saved"));if(after)after()}catch(err){}}});
@@ -1841,6 +1853,8 @@ document.addEventListener("click",async e=>{
  if(a==="filt"){UI[b.dataset.k]=b.dataset.v;render();return}
  if(a==="install"){if(installEvt){installEvt.prompt();installEvt.userChoice.finally(()=>{installEvt=null;b.hidden=true})}return}
  if(a==="signout")return confirmSheet(t("signOut"),signOut);
+ if(a==="chpin"){closeSheet();return setTimeout(newPasswordSheet,250)}
+ if(a==="adminreset"){closeSheet();return setTimeout(adminResetSheet,250)}
  if(a==="chatSend"){const bx=document.getElementById("chatbox");return chatSend(bx?bx.value:"")}
  if(a==="chatSug")return chatSend(b.dataset.v);
  if(a==="chatPhoto"){const fi=document.getElementById("chatimg");if(fi)fi.click();return}
@@ -1934,45 +1948,100 @@ function makeTts(){
 }
 const DL={save({filename,data}){const b=data instanceof Blob?data:new Blob([data],{type:/\.csv$/.test(filename)?"text/csv;charset=utf-8":"application/octet-stream"});const a=document.createElement("a");a.href=URL.createObjectURL(b);a.download=filename;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},1500);return Promise.resolve({status:"saved"})}};
 
-/* ---------- sign in ---------- */
+/* ---------- sign in (mobile number + PIN; email kept for older accounts) ---------- */
+const PHONE_DOMAIN="@phone.rxfingertip.app";
+const normPhone=v=>{let d=String(v||"").replace(/\D/g,"");if(d.length===12&&d.startsWith("91"))d=d.slice(2);if(d.length===11&&d.startsWith("0"))d=d.slice(1);return /^[6-9]\d{9}$/.test(d)?d:null};
+const phoneEmail=p=>"91"+p+PHONE_DOMAIN;
+const isPhoneUser=()=>String(window.__email||"").endsWith(PHONE_DOMAIN);
+const accountLabel=()=>isPhoneUser()?"+91 "+String(window.__email).slice(2,12):(window.__email||"");
+async function pinApi(body,withAuth){
+ const h={"Content-Type":"application/json",apikey:SB_KEY};
+ if(withAuth){const{data}=await sb.auth.getSession();if(data&&data.session)h.Authorization="Bearer "+data.session.access_token}
+ const r=await fetch(SB_URL+"/functions/v1/pin-auth",{method:"POST",headers:h,body:JSON.stringify(body)});
+ let j={};try{j=await r.json()}catch(e){}return j;
+}
+const PIN_INPUT=(name,label,ac)=>`<label>${label}<input name="${name}" type="password" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" minlength="6" required autocomplete="${ac}"></label>`;
 UI.authMode="in";UI.authMsg="";
 function vAuth(){
- const m=UI.authMode;
- return `<section class="hero" style="margin-top:4px"><h1>Rx Fingertip Care</h1><p>${t("tagline")}</p></section>
- <div class="card"><h2 style="margin-bottom:12px">${m==="up"?t("signUp"):m==="reset"?t("forgotPw"):t("signIn")}</h2>
- <form id="authf">
+ const m=UI.authMode,isEmail=m==="email"||m==="reset";
+ const title=m==="up"?t("signUp"):m==="reset"?t("forgotPw"):m==="forgot"?t("forgotPin"):t("signIn");
+ const msg=UI.authMsg?`<p class="small" style="color:${UI.authMsg.ok?"var(--ok)":"var(--bad)"}">${esc(UI.authMsg.text)}</p>`:"";
+ let form;
+ if(m==="forgot")form=`<p>${t("forgotPinMsg")}</p>`;
+ else if(isEmail)form=`<form id="authf">
   <label>${t("email")}<input name="email" type="email" required autocomplete="email" inputmode="email"></label>
-  ${m!=="reset"?`<label>${t("password")}<input name="password" type="password" required minlength="6" autocomplete="${m==="up"?"new-password":"current-password"}"></label>`:""}
-  ${UI.authMsg?`<p class="small" style="color:${UI.authMsg.ok?"var(--ok)":"var(--bad)"}">${esc(UI.authMsg.text)}</p>`:""}
-  <button class="btn block" id="authbtn">${m==="up"?t("signUp"):m==="reset"?t("sendReset"):t("signIn")}</button>
- </form>
- <div style="display:flex;justify-content:space-between;gap:8px;margin-top:14px;flex-wrap:wrap">
-  ${m!=="in"?`<button class="btn ghost sm" data-auth="in">${t("haveAcct")}</button>`:`<button class="btn ghost sm" data-auth="up">${t("noAcct")}</button>`}
-  ${m==="in"?`<button class="btn ghost sm" data-auth="reset">${t("forgotPw")}</button>`:""}
- </div></div>
+  ${m==="email"?`<label>${t("password")}<input name="password" type="password" required minlength="6" autocomplete="current-password"></label>`:""}
+  ${msg}<button class="btn block" id="authbtn">${m==="reset"?t("sendReset"):t("signIn")}</button></form>`;
+ else form=`<form id="authf">
+  <label>${t("mobile")}<input name="phone" type="tel" inputmode="numeric" maxlength="16" required autocomplete="tel-national" placeholder="98xxxxxxxx"></label>
+  ${PIN_INPUT("pin",t("pin"),m==="up"?"new-password":"current-password")}
+  ${m==="up"?PIN_INPUT("pin2",t("pin2"),"new-password"):""}
+  ${msg}<button class="btn block" id="authbtn">${m==="up"?t("signUp"):t("signIn")}</button></form>`;
+ const links=[];
+ if(m==="in")links.push(`<button class="btn ghost sm" data-auth="up">${t("noAcct")}</button>`,`<button class="btn ghost sm" data-auth="forgot">${t("forgotPin")}</button>`);
+ else if(m==="email")links.push(`<button class="btn ghost sm" data-auth="in">${t("usePhone")}</button>`,`<button class="btn ghost sm" data-auth="reset">${t("forgotPw")}</button>`);
+ else if(m==="reset")links.push(`<button class="btn ghost sm" data-auth="email">${t("haveAcct")}</button>`);
+ else links.push(`<button class="btn ghost sm" data-auth="in">${t("haveAcct")}</button>`);
+ return `<section class="hero" style="margin-top:4px"><h1>Rx Fingertip Care</h1><p>${t("tagline")}</p></section>
+ <div class="card"><h2 style="margin-bottom:12px">${title}</h2>${form}
+ <div style="display:flex;justify-content:space-between;gap:8px;margin-top:14px;flex-wrap:wrap">${links.join("")}</div>
+ ${!isEmail?`<p class="small muted" style="margin-top:12px">${t("pinNote")}</p>`:""}</div>
+ ${m==="in"?`<p style="text-align:center;margin:4px 0 12px"><button class="btn ghost sm" data-auth="email">${t("useEmail")}</button></p>`:""}
  <p class="note">${t("authNote")}</p>`;
 }
 function bindAuth(){
  document.querySelectorAll("[data-auth]").forEach(b=>b.onclick=()=>{UI.authMode=b.dataset.auth;UI.authMsg="";render()});
  const f=$("#authf");if(!f)return;
- f.onsubmit=async e=>{e.preventDefault();const fd=new FormData(f);const email=String(fd.get("email")||"").trim(),pw=String(fd.get("password")||"");
+ f.onsubmit=async e=>{e.preventDefault();const fd=new FormData(f);const m=UI.authMode;
   const btn=$("#authbtn");btn.disabled=true;const back=location.origin+location.pathname;let r;
+  const fail=k=>{UI.authMsg={ok:false,text:t(k)}};
   try{
-   if(UI.authMode==="up"){r=await sb.auth.signUp({email,password:pw,options:{emailRedirectTo:back}});if(!r.error&&!r.data.session)UI.authMsg={ok:true,text:t("checkEmail")}}
-   else if(UI.authMode==="reset"){r=await sb.auth.resetPasswordForEmail(email,{redirectTo:back});if(!r.error)UI.authMsg={ok:true,text:t("resetSent")}}
-   else r=await sb.auth.signInWithPassword({email,password:pw});
-   if(r&&r.error)UI.authMsg={ok:false,text:/invalid login/i.test(r.error.message)?t("badLogin"):/not confirmed/i.test(r.error.message)?t("notConfirmed"):r.error.message};
+   if(m==="email"||m==="reset"){
+    const email=String(fd.get("email")||"").trim(),pw=String(fd.get("password")||"");
+    if(m==="reset"){r=await sb.auth.resetPasswordForEmail(email,{redirectTo:back});if(!r.error)UI.authMsg={ok:true,text:t("resetSent")}}
+    else r=await sb.auth.signInWithPassword({email,password:pw});
+    if(r&&r.error)UI.authMsg={ok:false,text:/invalid login/i.test(r.error.message)?t("badLogin"):/not confirmed/i.test(r.error.message)?t("notConfirmed"):r.error.message};
+   }else{
+    const phone=normPhone(fd.get("phone")),pin=String(fd.get("pin")||"");
+    if(!phone)fail("badPhone");
+    else if(!/^\d{6}$/.test(pin))fail("badPinFmt");
+    else if(m==="up"&&pin!==String(fd.get("pin2")||""))fail("pinMismatch");
+    else{
+     if(m==="up"){const j=await pinApi({action:"signup",phone,pin});
+      if(j.error){fail(j.error==="exists"?"phoneExists":j.error==="bad_phone"?"badPhone":j.error==="bad_pin"?"badPinFmt":"tryAgain");btn.disabled=false;if(!Store.uid)render();return}}
+     r=await sb.auth.signInWithPassword({email:phoneEmail(phone),password:pin});
+     if(r.error)fail(/invalid login/i.test(r.error.message)?"badLoginPin":"tryAgain");
+    }
+   }
   }catch(err){UI.authMsg={ok:false,text:t("offline")}}
   btn.disabled=false;if(!Store.uid)render();
  };
 }
 function newPasswordSheet(){
- openSheet(`<h3>${t("newPw")}</h3><form id="f" data-nosf="1"><label>${t("password")}<input name="password" type="password" minlength="6" required autocomplete="new-password"></label>${ACT()}</form>`,c=>{
-  c.querySelector("#f").onsubmit=async e=>{e.preventDefault();const pw=new FormData(e.target).get("password");const r=await sb.auth.updateUser({password:String(pw)});if(r.error)toast(r.error.message);else{closeSheet();toast(t("saved"))}}});
+ const pinMode=isPhoneUser();
+ const fields=pinMode?PIN_INPUT("password",t("pin"),"new-password")+PIN_INPUT("password2",t("pin2"),"new-password")
+  :`<label>${t("password")}<input name="password" type="password" minlength="6" required autocomplete="new-password"></label>`;
+ openSheet(`<h3>${pinMode?t("newPin"):t("newPw")}</h3><form id="f" data-nosf="1">${fields}${ACT()}</form>`,c=>{
+  c.querySelector("#f").onsubmit=async e=>{e.preventDefault();const fd=new FormData(e.target);const pw=String(fd.get("password")||"");
+   if(pinMode&&!/^\d{6}$/.test(pw))return toast(t("badPinFmt"));
+   if(pinMode&&pw!==String(fd.get("password2")||""))return toast(t("pinMismatch"));
+   const r=await sb.auth.updateUser({password:pw});
+   if(r.error)toast(/different from the old/i.test(r.error.message)?t("tryAgain"):r.error.message);else{closeSheet();toast(t("saved"))}}});
+}
+function adminResetSheet(){
+ openSheet(`<h3>${t("adminReset")}</h3><p class="small muted">${t("adminResetNote")}</p><form id="f" data-nosf="1">
+  <label>${t("mobile")}<input name="phone" type="tel" inputmode="numeric" maxlength="16" required></label>
+  ${PIN_INPUT("pin",t("newPin"),"off")}${ACT()}</form>`,c=>{
+  c.querySelector("#f").onsubmit=async e=>{e.preventDefault();const fd=new FormData(e.target);
+   const phone=normPhone(fd.get("phone")),pin=String(fd.get("pin")||"");
+   if(!phone)return toast(t("badPhone"));if(!/^\d{6}$/.test(pin))return toast(t("badPinFmt"));
+   try{const j=await pinApi({action:"reset",phone,pin},true);
+    if(j.ok){closeSheet();toast(t("resetDone"))}else toast(j.error==="no_account"?t("noAccount"):t("tryAgain"))}catch(err){toast(t("offline"))}}});
 }
 async function signOut(){try{await sb.auth.signOut()}catch(e){}location.hash="#home";location.reload()}
 function startData(user){
  window.__email=user.email||"";if(Store.uid===user.id)return;Store.uid=user.id;
+ sb.from("app_admins").select("user_id").eq("user_id",user.id).maybeSingle().then(r=>{window.__admin=!!(r&&r.data)}).catch(()=>{});
  ["chemists","orders","inventory","priv","hospitals","videos"].forEach(n=>Store.start(n));
  render();
 }
