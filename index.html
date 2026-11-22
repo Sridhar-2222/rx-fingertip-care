@@ -364,7 +364,7 @@ const T={
  findBatch:["Find by medicine or batch…","మందు లేదా బ్యాచ్‌తో వెతకండి…"],noPurchases:["No purchases saved yet.","ఇంకా కొనుగోళ్లు లేవు."],reviewDue:["Weekly bill review due","వారపు బిల్లు సమీక్ష పెండింగ్"],reviewOk:["Last weekly review: {d}","చివరి వారపు సమీక్ష: {d}"],
  markReview:["Mark review done","సమీక్ష పూర్తి"],dlRegister:["Download register (.csv)","రిజిస్టర్ డౌన్‌లోడ్ (.csv)"],shareAllergy:["Share my allergies with the chemist","నా అలర్జీలు కెమిస్ట్‌తో పంచుకోండి"],
  chat:["Assistant","సహాయకుడు"],chatTitle:["Rx Assistant","Rx సహాయకుడు"],
- chatIntro:["Ask about your medicines, diet, orders or a prescription photo — in Telugu or English.","మీ మందులు, ఆహారం, ఆర్డర్లు లేదా ప్రిస్క్రిప్షన్ ఫోటో గురించి — తెలుగు లేదా ఇంగ్లీష్‌లో అడగండి."],
+ chatIntro:["Speak or type in Telugu or English — your medicines, BP/sugar readings, orders, diet, health videos. Tap 🎤 and talk.","తెలుగు లేదా ఇంగ్లీష్‌లో మాట్లాడండి లేదా టైప్ చేయండి — మందులు, బీపీ/షుగర్ రీడింగ్స్, ఆర్డర్లు, ఆహారం, హెల్త్ వీడియోలు. 🎤 నొక్కి మాట్లాడండి."],
  chatPh:["Type a message…","సందేశం టైప్ చేయండి…"],send:["Send","పంపు"],stop:["Stop","ఆపు"],thinking:["Thinking…","ఆలోచిస్తోంది…"],clearChat:["Clear","క్లియర్"],attach:["Photo","ఫోటో"],
  chatOff:["The AI assistant is coming soon.","AI సహాయకుడు త్వరలో వస్తుంది."],
  chatDeclined:["The assistant wasn't allowed. You can allow it from this app's Permissions menu.","సహాయకుడికి అనుమతి ఇవ్వలేదు. యాప్ Permissions మెనూలో అనుమతించవచ్చు."],
@@ -463,6 +463,7 @@ const T={
  sfCheck:["Please check and correct before saving.","సేవ్ చేసే ముందు సరిచూసి, అవసరమైతే మార్చండి."],sfReadBack:["Read back","మళ్ళీ వినిపించు"],sfItems:["Items","వస్తువులు"],
  sfPhotoStep:["Reading photo {i} of {n}… (first time takes longer)","ఫోటో {i}/{n} చదువుతోంది… (మొదటిసారి కొంచెం ఎక్కువ సమయం)"],
  sfPhotoFail:["Couldn't read the photo. Try a clear, well-lit photo of printed text, or speak instead.","ఫోటో చదవలేకపోయాం. వెలుతురులో స్పష్టమైన ప్రింటెడ్ ఫోటో తీయండి, లేదా మాట్లాడి చెప్పండి."],
+ sugBp:["BP 130 by 85","బీపీ 130 బై 85"],sugOrder:["Order my medicines","నా మందులు ఆర్డర్ చేయండి"],sugVid:["Sugar videos","షుగర్ వీడియోలు"],saveReading:["Save reading","రీడింగ్ సేవ్ చేయండి"],
  signOut:["Sign out","సైన్ అవుట్"],signedInAs:["Signed in as","సైన్ ఇన్ అయిన ఖాతా"],offline:["No internet — changes will show when you're back online.","ఇంటర్నెట్ లేదు — తిరిగి ఆన్‌లైన్ అయ్యాక మార్పులు కనిపిస్తాయి."],
  authNote:["Your health details are private to your account. General guidance only, not medical advice. In an emergency call 108.","మీ ఆరోగ్య వివరాలు మీ ఖాతాకు మాత్రమే. ఇది సాధారణ సమాచారం, వైద్య సలహా కాదు. అత్యవసరంలో 108 కి కాల్ చేయండి."],
  lang_te:["Telugu","తెలుగు"],lang_en:["English","ఇంగ్లీష్"],lang_hi:["Hindi","హిందీ"],
@@ -845,7 +846,7 @@ function render(){
  {const ab=$("#acctbtn");ab.hidden=false;ab.innerHTML=ICON.user;ab.title=t("profile")}
  $("#langbtn").textContent=LANG==="te"?"English":"తెలుగు";
  const tab=route==="chat"?"":SUB.includes(route)?"patient":route;
- $("#fab").hidden=!CAP.sample||route==="chat";$("#fab").title=t("chatTitle");
+ $("#fab").hidden=route==="chat";$("#fab").title=t("chatTitle");
  $("#tabs").innerHTML=ROUTES.map(r=>`<a href="#${r}" class="${r===tab?"on":""}" ${r===tab?'aria-current="page"':""}>${ICON[r]}<span>${t(r)}</span></a>`).join("");
  const v=$("#view");
  const VIEWS={home:vHome,patient:vPatient,diet:vDiet,chemist:vChemist,health:vHealth,vault:vVault,location:vLocation,hospitals:vHospitals,videos:vVideos,hospadmin:vHospAdmin,chat:vChat,vitals:vVitals};
@@ -1195,7 +1196,7 @@ function startMic(btn){
 }
 function setupDictation(d){
  d.onFinal(({text})=>{const el=micTargetId&&document.getElementById(micTargetId);if(!el||!text)return;el.value=el.value?el.value+text:text.replace(/^\s+/,"");el.dispatchEvent(new Event("input",{bubbles:true}))});
- d.onState(({state})=>{paintMics(state!=="idle");if(state==="idle"){micBtnKey=null;if(micTargetId==="sf_text"&&window.__sfAuto){const el=document.getElementById("sf_text");if(el&&el.value.trim())setTimeout(()=>window.__sfAuto(el.value.trim()),50)}}});
+ d.onState(({state})=>{paintMics(state!=="idle");if(state==="idle"){micBtnKey=null;if(micTargetId==="chatbox"&&route==="chat"){const el=document.getElementById("chatbox");const tx=el&&el.value.trim();if(tx){el.value="";setTimeout(()=>chatSend(tx,true),50)}}if(micTargetId==="sf_text"&&window.__sfAuto){const el=document.getElementById("sf_text");if(el&&el.value.trim())setTimeout(()=>window.__sfAuto(el.value.trim()),50)}}});
 }
 function sayBtn(key,sm){if(!CAP.tts)return "";return `<button type="button" class="btn ghost${sm?" sm":""}" data-say="${esc(key)}">🔊 ${t("readAloud")}</button>`}
 function sayText(key){
@@ -1710,7 +1711,7 @@ function dlH1(){
 
 /* ---------- Rx Assistant (chatbot powered by Claude) ---------- */
 const CHAT={msgs:[],busy:false,ctl:null,stream:"",curActions:[],err:"",img:null,loaded:false,off:""};
-const PAGES=["patient","diet","health","vault","location","hospitals","videos","chemist"];
+const PAGES=["patient","diet","health","vault","location","hospitals","videos","chemist","vitals","hospadmin","home"];
 const SLOT_EN={m:"morning (8 AM)",a:"afternoon (1 PM)",n:"night (8 PM)"};
 const condEn=k=>{const c=CONDS.find(x=>x[0]===k);return c?c[1][0]:k};
 const RULES=`You are "Rx Assistant", the helper inside Rx Fingertip, a medicine and health app used by patients and chemists (pharmacists) in Telangana and Andhra Pradesh, India.
@@ -1802,14 +1803,147 @@ function actionsHtml(acts,i){
   if(a.t==="dose")return `<span class="actchip">✓ ${esc(t("markedDose",{m:a.m,s:t(a.s)}))}</span>`;
   if(a.t==="nav"&&PAGES.includes(a.p))return `<a class="btn ghost sm" style="margin:6px 6px 0 0" href="#${a.p}">${esc(t("openPage",{p:t(a.p)}))} ›</a>`;
   if(a.t==="order")return `<button class="btn sm" style="margin:6px 6px 0 0" data-act="chatOrder" data-i="${i}" data-k="${k}">🛒 ${t("reviewOrder")}</button>`;
+  if(a.t==="call"&&/^[0-9+]{3,15}$/.test(String(a.n).replace(/[\s-]/g,"")))return `<a class="btn ${a.n==="108"?"bad":"ghost"} sm" style="margin:6px 6px 0 0" href="${esc(telHref(a.n))}">${esc(a.l||a.n)}</a>`;
+  if(a.t==="video"&&ytId(a.id))return `<button class="vitem" style="margin-top:6px;width:100%" data-act="playVid" data-id="${a.id}"><img loading="lazy" alt="" src="https://i.ytimg.com/vi/${a.id}/mqdefault.jpg"><span class="vt"><b>${esc(a.l||"")}</b></span></button>`;
+  if(a.t==="saveVital")return a.done?`<span class="actchip">✓ ${t("saved")}</span>`:`<button class="btn sm" style="margin:6px 6px 0 0" data-act="chatSaveVital" data-i="${i}" data-k="${k}">💾 ${t("saveReading")}</button>`;
+  if(a.t==="profile")return `<button class="btn ghost sm" style="margin:6px 6px 0 0" data-act="profile">👤 ${t("profile")} ›</button>`;
   return "";}).join("");
 }
 function ensureChat(){if(!CHAT.loaded){const c=P("chat");if(Array.isArray(c.msgs)){CHAT.msgs=clone(c.msgs);CHAT.loaded=true}}}
-function chatSugs(){const s=[["sug1"],["sug2"],["sug4"]];if(CAP.sampleImg)s.splice(2,0,["sug3","photo"]);if(myShopId())s.push(["sug5"]);return s}
+function chatSugs(){if(!CAP.sample){const s=[["sug1"],["sugBp"],["sug2"],["sugOrder"],["sugVid"]];if(myShopId())s.push(["sug5"]);return s}const s=[["sug1"],["sug2"],["sug4"]];if(CAP.sampleImg)s.splice(2,0,["sug3","photo"]);if(myShopId())s.push(["sug5"]);return s}
+/* ---------- Free assistant (no paid AI): understands Telugu/English requests and acts on the person's own data ---------- */
+const L2=(en,te)=>LANG==="te"?te:en;
+const has=(low,ws)=>ws.some(w=>{const i=low.indexOf(w);if(i<0)return false;if(!/[a-z]/.test(w[0]))return true;const pre=low[i-1]||" ",post=low[i+w.length]||" ";return !/[a-z]/.test(pre)&&!/[a-z]/.test(post)});
+const KW={
+ emergency:["chest pain","heart attack","not breathing","can't breathe","cannot breathe","breathless","unconscious","fainted","fits","seizure","stroke","heavy bleeding","bleeding a lot","poison","suicide","kill myself","ఛాతీ నొప్పి","ఊపిరి ఆడటం లేదు","ఊపిరి ఆడట్లేదు","స్పృహ లేదు","స్పృహ తప్పి","మూర్ఛ","పక్షవాతం","రక్తస్రావం","విషం","ఆత్మహత్య","108"],
+ hello:["hi","hello","hey","namaste","namaskaram","నమస్కారం","నమస్తే","హలో","హాయ్"],
+ help:["help","what can you do","సహాయం","ఏం చేయగలవు"],
+ meds:["my medicines","my medicine","medicines","tablets","మందులు","నా మందులు","మాత్రలు","టాబ్లెట్లు","explain my"],
+ doses:["next dose","today's dose","todays dose","doses","when to take","which tablet now","ఎప్పుడు వేసుకోవాలి","ఈరోజు మందులు","తర్వాతి మాత్ర","డోస్"],
+ diet:["eat","food","diet","meal","breakfast","lunch","dinner","తినాలి","తినొచ్చు","ఆహారం","డైట్","భోజనం","టిఫిన్"],
+ order:["order","buy","need medicine","send medicine","refill","ఆర్డర్","కావాలి","తెప్పించు","పంపండి","కొనాలి"],
+ readings:["my readings","my bp","my sugar","last reading","readings","history","నా బీపీ","నా షుగర్","రీడింగ్"],
+ videos:["video","videos","watch","youtube","వీడియో","చూపించు","చూడాలి"],
+ hospital:["hospital","doctor","clinic","ఆసుపత్రి","హాస్పిటల్","డాక్టర్"],
+ records:["report","reports","records","vault","prescription","discharge","రిపోర్ట్","రికార్డ్","ప్రిస్క్రిప్షన్"],
+ pharmacy:["pharmacy","chemist","medical shop","ఫార్మసీ","కెమిస్ట్","మెడికల్ షాప్"],
+ interaction:["can i take","with my medicines","together","side effect","side effects","dose of","how much","overdose","వేసుకోవచ్చా","కలిపి","సైడ్ ఎఫెక్ట్","ఎంత వేసుకోవాలి"],
+ stock:["low stock","stock","స్టాక్"],neworders:["new orders","pending orders","కొత్త ఆర్డర్లు"],
+ profile:["my profile","my details","register me","నా వివరాలు","ప్రొఫైల్"],
+ health:["blood group","allergy","allergies","health details","బ్లడ్ గ్రూప్","అలర్జీ","ఆరోగ్య వివరాలు"],
+ location:["address","location","delivery address","అడ్రస్","చిరునామా","లొకేషన్"],
+ thanks:["thank","thanks","ధన్యవాదాలు","థాంక్స్"],
+};
+function videoMatches(low,n){
+ const conds=Object.keys(VCOND).filter(c=>VCOND[c][1].some(k=>low.includes(k)));
+ if(!conds.length)return[];
+ return Lib.rows.filter(x=>(x.conditions||[]).some(c=>conds.includes(c))).sort((a,b)=>((b.lang==="te")-(a.lang==="te"))||(b.views||0)-(a.views||0)).slice(0,n||3);
+}
+async function localReply(raw){
+ const text=String(raw||"").trim();const low=text.toLowerCase();const acts=[];const out=s=>({content:s,actions:acts});
+ // 1. emergencies first, always
+ if(has(low,KW.emergency)){
+  acts.push({t:"call",n:"108",l:"🚑 108"});const mine=Net.enr.filter(isMine).find(x=>x.kind==="hospital");const h=mine&&Net.hosps[mine.ref];
+  if(h&&h.data&&(h.data.emergency||h.data.phone))acts.push({t:"call",n:h.data.emergency||h.data.phone,l:"🏥 "+h.data.name});
+  acts.push({t:"nav",p:"hospitals"});
+  return out(L2("**This may be an emergency. Call 108 now** (free ambulance). If the person is not breathing or not responding, call immediately and stay with them.","**ఇది అత్యవసరం కావచ్చు. వెంటనే 108 కి కాల్ చేయండి** (ఉచిత అంబులెన్స్). శ్వాస లేకపోతే లేదా స్పందించకపోతే వెంటనే కాల్ చేసి వారితోనే ఉండండి."));
+ }
+ // 2. a reading said or typed -> offer to save it
+ const R=LS.analyse(text);const rd=[];
+ if(R.sys)rd.push({type:"bp",sys:R.sys,dia:R.dia});
+ if(R.sugar!=null)rd.push({type:"sugar",value:R.sugar,context:R.keys.fasting!=null?"fasting":R.keys.after!=null?"after":"random"});
+ if(R.pulse!=null)rd.push({type:"pulse",value:R.pulse});if(R.spo2!=null)rd.push({type:"spo2",value:R.spo2});if(R.temp!=null)rd.push({type:"temp",value:R.temp});
+ if(rd.length&&!has(low,["history","last reading","previous","old readings","చివరి","రీడింగ్స్","చరిత్ర","పాత"])){
+  const ok=rd.map(r=>normVital(r)).filter(Boolean);
+  if(ok.length){acts.push({t:"saveVital",rs:ok.map(r=>Object.assign({},r))});
+   const warn=ok.some(r=>vStatus(r)[1]==="danger");
+   return out(L2("I heard: ","నేను విన్నది: ")+ok.map(r=>`**${t("vt_"+r.type)||r.type} ${vitalText(r)}**${r.ctx?" ("+t(r.ctx)+")":""}`).join(", ")+". "+L2("Tap below to save it to your readings.","మీ రీడింగ్స్‌లో సేవ్ చేయడానికి కింద నొక్కండి.")+(warn?"\n\n⚠️ "+t("vDanger"):""))}
+ }
+ if(has(low,KW.thanks))return out(L2("You're welcome. Take care!","సంతోషం. జాగ్రత్తగా ఉండండి!"));
+ // 3. medicine safety questions -> never advise doses; point to pharmacist/doctor
+ if(has(low,KW.interaction)){
+  const ph=Net.enr.filter(isMine).find(x=>x.kind==="chemist");const c=ph&&State.chemists[ph.ref];if(c&&c.phone)acts.push({t:"call",n:c.phone,l:"📞 "+c.name});
+  acts.push({t:"nav",p:"patient"});
+  return out(L2("I can't safely answer questions about doses, mixing medicines or side effects. Please ask your **pharmacist or doctor** — they know your full history. Your medicine list is on the Patient page to show them.","మోతాదు, మందులు కలిపి వేసుకోవడం, సైడ్ ఎఫెక్ట్స్ గురించి నేను సురక్షితంగా చెప్పలేను. దయచేసి మీ **ఫార్మసిస్ట్ లేదా డాక్టర్‌ను** అడగండి. చూపించడానికి మీ మందుల జాబితా పేషెంట్ పేజీలో ఉంది."));
+ }
+ // 4. videos about a condition
+ const vids=videoMatches(low,3);
+ if(has(low,KW.videos)||(vids.length&&/what is|about|tell me|ఏమిటి|గురించి|ఎందుకు|how to|ఎలా/.test(low))){
+  if(!Lib.loaded)await libLoad();const v2=videoMatches(low,3);
+  v2.forEach(x=>acts.push({t:"video",id:x.id,l:x.title}));acts.push({t:"nav",p:"videos"});
+  return out(v2.length?L2("Here are doctors' videos on this (Telugu first):","దీనిపై డాక్టర్ల వీడియోలు (తెలుగు ముందు):"):L2("Open Health videos and tap a condition, or say e.g. \"sugar videos\".","హెల్త్ వీడియోలు తెరిచి ఒక సమస్యను నొక్కండి, లేదా \"షుగర్ వీడియోలు\" అని చెప్పండి."));
+ }
+ // 5. ordering medicines
+ if(has(low,KW.order)){
+  const o=LS.fill({note:{type:"text",label:"Note"}},text.replace(/\b(order|please|i need|need|send|buy|refill)\b|ఆర్డర్|కావాలి|తెప్పించు|పంపండి|కొనాలి/gi," "),true);
+  const items=(o.items||[]).filter(i=>i.name.length>1);
+  const list=items.length?items:meds().filter(m=>{const l=medLeft(m);return l!=null&&l<=5}).map(m=>({name:m.name,qty:Math.max(1,((m.slots||[]).length||1)*10)}));
+  acts.push({t:"order",items:list});
+  return out(list.length?L2("I'll start an order for: ","ఈ మందులకు ఆర్డర్ మొదలుపెడతాను: ")+list.map(i=>`**${i.name}**${i.qty>1?" × "+i.qty:""}`).join(", ")+". "+L2("Tap to check and send it to your pharmacy.","సరిచూసి మీ ఫార్మసీకి పంపడానికి నొక్కండి."):L2("Tap below to order. You can say the medicine names, e.g. \"Dolo 650 two strips\".","ఆర్డర్ చేయడానికి కింద నొక్కండి. మందుల పేర్లు చెప్పవచ్చు, ఉదా. \"డోలో 650 రెండు స్ట్రిప్స్\"."));
+ }
+ // 6. chemist questions
+ if(myShopId()&&(has(low,KW.stock)||has(low,KW.neworders))){
+  const sid=myShopId();const inv=Object.values(State.inventory).filter(x=>x&&x.chemistId===sid);const lowS=inv.filter(x=>+x.stock<=+(x.reorder||0));
+  const nNew=Object.values(State.orders).filter(o=>o&&o.chemistId===sid&&o.status==="new").length;acts.push({t:"nav",p:"chemist"});
+  return out(L2(`**${nNew}** new orders. `,`**${nNew}** కొత్త ఆర్డర్లు. `)+(lowS.length?L2("Low stock: ","తక్కువ స్టాక్: ")+lowS.slice(0,10).map(x=>`${x.name} (${x.stock})`).join(", "):L2("No items are low in stock.","తక్కువ స్టాక్ ఏదీ లేదు.")));
+ }
+ // 7. doses / medicines
+ if(has(low,KW.doses)||has(low,KW.meds)){
+  const list=meds();acts.push({t:"nav",p:"patient"});
+  if(!list.length)return out(L2("You haven't added any medicines yet. Open the Patient page and tap **+ Add medicine** — you can speak the details.","మీరు ఇంకా మందులు చేర్చలేదు. పేషెంట్ పేజీ తెరిచి **+ మందు చేర్చండి** నొక్కండి — వివరాలు మాట్లాడి చెప్పవచ్చు."));
+  const ds=todayDoses();const nx=ds.find(x=>!x.done);
+  const lines=list.slice(0,10).map(m=>`• **${m.name}** — ${m.dose||""} · ${(m.slots||[]).map(s=>t(s)).join(", ")} · ${t(m.food||"after")}`);
+  return out((nx?L2(`Next: **${nx.m.name}** (${t(nx.s)}).`,`తర్వాత: **${nx.m.name}** (${t(nx.s)}).`)+"\n\n":ds.length?L2("All of today's doses are done. ✓","ఈరోజు మందులన్నీ వేసుకున్నారు. ✓")+"\n\n":"")+lines.join("\n"));
+ }
+ // 8. diet
+ if(has(low,KW.diet)){
+  acts.push({t:"nav",p:"diet"});
+  if(!P("diet").made)return out(L2("You don't have a diet plan yet. Open Diet to make one — it uses your conditions and medicines.","మీకు ఇంకా డైట్ ప్లాన్ లేదు. డైట్ తెరిచి తయారు చేసుకోండి — మీ ఆరోగ్య సమస్యలు, మందులను బట్టి వస్తుంది."));
+  return out(L2("Today's plan:","ఈరోజు ప్లాన్:")+"\n"+sayText("diet"));
+ }
+ // 9. reading history
+ if(has(low,KW.readings)){
+  const list=(P("vitals").list||[]).slice().sort((a,b)=>String(b.at).localeCompare(String(a.at))).slice(0,5);acts.push({t:"nav",p:"vitals"});
+  return out(list.length?L2("Your last readings:","మీ చివరి రీడింగ్స్:")+"\n"+list.map(r=>`• ${t("vt_"+r.type)||r.type}: **${vitalText(r)}** — ${fmtVAt(r.at)} (${t(vStatus(r)[0]||"vs_normal")})`).join("\n"):L2("No readings yet. Say for example \"BP 130 by 85\" or \"sugar fasting 140\" and I'll save it.","ఇంకా రీడింగ్స్ లేవు. ఉదాహరణకు \"బీపీ 130 బై 85\" లేదా \"పరగడుపు షుగర్ 140\" అని చెప్పండి, సేవ్ చేస్తాను."));
+ }
+ // 10. records from hospitals
+ if(has(low,KW.records)){
+  const n=Net.ho.filter(isMine).length;acts.push({t:"nav",p:"vault"});
+  return out(L2(`Your health vault has your saved papers${n?` and **${n}** record(s) sent by hospitals`:""}.`,`మీ హెల్త్ వాల్ట్‌లో మీరు సేవ్ చేసిన పత్రాలు ఉన్నాయి${n?`, ఆసుపత్రులు పంపిన **${n}** రికార్డులు కూడా`:""}.`));
+ }
+ // 11. my pharmacy / hospital
+ if(has(low,KW.hospital)||has(low,KW.pharmacy)){
+  const mine=Net.enr.filter(isMine);
+  mine.forEach(x=>{if(x.kind==="chemist"){const c=State.chemists[x.ref];if(c&&c.phone)acts.push({t:"call",n:c.phone,l:"🏪 "+c.name})}else{const h=Net.hosps[x.ref];if(h&&h.data&&h.data.phone)acts.push({t:"call",n:h.data.phone,l:"🏥 "+h.data.name})}});
+  acts.push({t:"nav",p:"hospitals"});
+  return out(mine.length?L2("Your pharmacy and hospital are below. Tap to call.","మీ ఫార్మసీ, ఆసుపత్రి కింద ఉన్నాయి. కాల్ చేయడానికి నొక్కండి."):L2("You can find hospitals and emergency numbers on the Hospitals page.","ఆసుపత్రులు, అత్యవసర నంబర్లు హాస్పిటల్స్ పేజీలో ఉన్నాయి."));
+ }
+ if(has(low,KW.profile)){acts.push({t:"profile"});return out(L2("Tap below to open your details. You can speak them in any order.","మీ వివరాలు తెరవడానికి కింద నొక్కండి. ఏ క్రమంలోనైనా మాట్లాడి చెప్పవచ్చు."))}
+ if(has(low,KW.health)){acts.push({t:"nav",p:"health"});return out(L2("Your blood group, allergies and conditions are in Health details.","మీ బ్లడ్ గ్రూప్, అలర్జీలు, ఆరోగ్య సమస్యలు హెల్త్ వివరాల్లో ఉన్నాయి."))}
+ if(has(low,KW.location)){acts.push({t:"nav",p:"location"});return out(L2("Your delivery address is under Delivery location.","మీ డెలివరీ అడ్రస్ డెలివరీ లొకేషన్‌లో ఉంది."))}
+ // 12. a condition word on its own -> videos + diet
+ if(vids.length){vids.forEach(x=>acts.push({t:"video",id:x.id,l:x.title}));acts.push({t:"nav",p:"videos"});return out(L2("Here are doctors' videos that may help:","ఉపయోగపడే డాక్టర్ల వీడియోలు:"))}
+ // 13. greeting / help / fallback
+ return out((has(low,KW.hello)?L2("Namaskaram! ","నమస్కారం! "):"")+L2("I can help you by voice:\n• \"What are my medicines?\" / \"next dose\"\n• \"BP 140 by 90\" or \"sugar fasting 150\" — I'll save it\n• \"Order Dolo 650 two strips\"\n• \"What should I eat today?\"\n• \"Sugar videos\"\n• \"My reports\" / \"call my pharmacy\"\nIn an emergency say \"chest pain\" or call **108**.",
+  "నేను మాటతో సహాయం చేస్తాను:\n• \"నా మందులు ఏమిటి?\" / \"తర్వాతి మాత్ర\"\n• \"బీపీ 140 బై 90\" లేదా \"పరగడుపు షుగర్ 150\" — సేవ్ చేస్తాను\n• \"డోలో 650 రెండు స్ట్రిప్స్ ఆర్డర్\"\n• \"ఈరోజు ఏం తినాలి?\"\n• \"షుగర్ వీడియోలు\"\n• \"నా రిపోర్టులు\" / \"నా ఫార్మసీకి కాల్\"\nఅత్యవసరంలో \"ఛాతీ నొప్పి\" అని చెప్పండి లేదా **108** కి కాల్ చేయండి."));
+}
+async function localChat(text,fromVoice){
+ ensureChat();CHAT.loaded=true;text=String(text||"").trim();if(!text)return;
+ CHAT.msgs.push({role:"user",content:text});UI.chatDraft="";render();scrollChat();
+ let r;try{r=await localReply(text)}catch(e){r={content:t("tryAgain"),actions:[]}}
+ CHAT.msgs.push({role:"assistant",content:r.content,actions:r.actions});render();scrollChat();saveChat();
+ if(fromVoice&&CAP.tts)CAP.tts.speak(String(r.content).replace(/\*\*/g,"").replace(/•/g,""),{language:LANG}).catch(()=>{});
+}
+function chatSaveVital(i,k){
+ const m=CHAT.msgs[+i];const a=m&&m.actions&&m.actions[+k];if(!a||!Array.isArray(a.rs)||a.done)return;
+ const v=clone(P("vitals"));v.list=(v.list||[]).concat(a.rs.map(r=>Object.assign({},r,{id:"r"+uid6()}))).slice(-500);
+ savePriv("vitals",v).then(()=>{a.done=true;saveChat();render();toast(t("saved"))}).catch(()=>{});
+}
+
 function vChat(){
  ensureChat();
  let h=`<div class="sec-h" style="margin-top:0"><a class="btn ghost sm" href="#home">‹ ${t("back")}</a><h2 style="flex:1">💬 ${t("chatTitle")}</h2>${CHAT.msgs.length&&!CHAT.busy?`<button class="btn ghost sm" data-act="chatClear">${t("clearChat")}</button>`:""}</div>`;
- if(!CAP.sample||CHAT.off)return h+`<div class="card empty">${CHAT.off==="declined"?t("chatDeclined"):t("chatOff")}</div>`;
+ if(CHAT.off)return h+`<div class="card empty">${CHAT.off==="declined"?t("chatDeclined"):t("chatOff")}</div>`;
  h+=`<div class="chatlist">`;
  if(!CHAT.msgs.length)h+=`<div class="card"><p style="margin:0 0 12px">${t("chatIntro")}</p><div class="chips">${chatSugs().map(([k,kind])=>`<button class="chipbtn" data-act="${kind==="photo"?"chatPhoto":"chatSug"}" data-v="${esc(t(k))}">${kind==="photo"?"📷 ":""}${t(k)}</button>`).join("")}</div></div>`;
  CHAT.msgs.forEach((m,i)=>{
@@ -1821,7 +1955,7 @@ function vChat(){
  const accept=(CAP.sampleImg&&CAP.sampleImg.mediaTypes||["image/jpeg","image/png","image/webp"]).join(",");
  h+=`<div class="composer"><div class="wrap">
   ${CHAT.img?`<div class="small" style="margin-bottom:6px;display:flex;align-items:center;gap:6px">📷 ${esc(CHAT.img.name||"photo")}<button class="iconbtn" data-act="chatImgRm" aria-label="${t("del")}">✕</button></div>`:""}
-  <div class="crow">${CAP.sampleImg?`<label class="iconbtn" style="font-size:1.3rem;cursor:pointer" title="${t("attach")}">📷<input type="file" id="chatimg" accept="${esc(accept)}" style="display:none"></label>`:""}
+  <div class="crow">${!CAP.sample?`<label class="iconbtn" style="font-size:1.3rem;cursor:pointer" title="${t("attach")}">📷<input type="file" id="chatimg_l" accept="image/*" style="display:none"></label>`:""}${CAP.sampleImg?`<label class="iconbtn" style="font-size:1.3rem;cursor:pointer" title="${t("attach")}">📷<input type="file" id="chatimg" accept="${esc(accept)}" style="display:none"></label>`:""}
   <textarea id="chatbox" rows="1" placeholder="${t("chatPh")}" aria-label="${t("chatPh")}">${esc(UI.chatDraft||"")}</textarea>
   ${CHAT.busy?`<button class="btn bad sm" data-act="chatStop">${t("stop")}</button>`:`<button class="btn sm" data-act="chatSend">${t("send")}</button>`}</div>
   ${CAP.dict?`<div class="voice" style="margin:6px 0 0">${micRow("chatbox").replace(/^<div class="voice">|<\/div>$/g,"")}</div>`:""}
@@ -1832,8 +1966,8 @@ function scrollChat(){requestAnimationFrame(()=>window.scrollTo(0,document.body.
 function paintStream(){const el=document.getElementById("streambubble");if(el){el.innerHTML=md(CHAT.stream);scrollChat()}}
 function chatErr(c){if(c==="rate_limited")return t("chatBusy");if(c==="refused")return t("chatRefused");if(c==="session_expired")return t("chatOff");return t("chatFail")}
 async function saveChat(){try{await savePriv("chat",{msgs:CHAT.msgs.slice(-30).map(m=>({role:m.role,content:String(m.content).slice(0,4000),img:!!m.img,cut:!!m.cut,actions:m.actions||[]}))})}catch(e){}}
-async function chatSend(raw){
- const sample=CAP.sample;if(!sample||CHAT.busy)return;
+async function chatSend(raw,fromVoice){
+ const sample=CAP.sample;if(!sample){if(!CHAT.busy)return localChat(raw,fromVoice);return}if(CHAT.busy)return;
  ensureChat();CHAT.loaded=true;
  let text=String(raw||"").trim();const img=CHAT.img;if(!text&&!img)return;
  if(!text)text=t("sug3");
@@ -2361,6 +2495,7 @@ document.addEventListener("click",async e=>{
  if(a==="chatImgRm"){CHAT.img=null;render();return}
  if(a==="chatClear")return confirmSheet(t("clearChat")+" — "+t("chatTitle"),async()=>{CHAT.msgs=[];CHAT.err="";CHAT.loaded=true;await saveChat();render()});
  if(a==="chatOrder")return chatOrder(b.dataset.i,b.dataset.k);
+ if(a==="chatSaveVital")return chatSaveVital(b.dataset.i,b.dataset.k);
  if(a==="scan")return scanSheet();
  if(a==="vitalForm")return vitalForm();
  if(a==="delVital"){const id=b.dataset.id;return confirmSheet(t("del")+"?",async()=>{const v=clone(P("vitals"));v.list=(v.list||[]).filter(r=>r.id!==id);await savePriv("vitals",v)})}
@@ -2404,7 +2539,8 @@ document.addEventListener("input",e=>{const id=e.target.id;
  if(SEARCH[id]){UI[SEARCH[id]]=e.target.value;render();return}
  if(id==="chatbox"){UI.chatDraft=e.target.value;e.target.style.height="auto";e.target.style.height=Math.min(120,e.target.scrollHeight)+"px";return}
  if(id==="reqtext"||id==="distph"){if(id==="reqtext"){UI.req=e.target.value;UI.reqDirty=true}else{UI.dist=e.target.value;UI.reqDirty=true}const l=document.getElementById("distlink");if(l)l.href=reqHref()}});
-document.addEventListener("change",e=>{if(e.target.id==="reqfile"){importReqFile(e.target.files&&e.target.files[0]);e.target.value=""}
+document.addEventListener("change",e=>{if(e.target.id==="chatimg_l"){const f=e.target.files&&e.target.files[0];e.target.value="";if(!f)return;toast(t("sfReading"));LS.readPhotos([f]).then(tx=>{tx=String(tx||"").trim();if(!tx)return toast(t("sfPhotoFail"));localChat(tx.slice(0,1500))}).catch(()=>toast(t("sfPhotoFail")));return}
+ if(e.target.id==="reqfile"){importReqFile(e.target.files&&e.target.files[0]);e.target.value=""}
  if(e.target.id==="chatimg"){const f=e.target.files&&e.target.files[0];e.target.value="";if(!f)return;const lim=CAP.sampleImg;
   if(lim&&lim.maxInputBytes&&f.size>lim.maxInputBytes){toast(t("imgTooBig"));return}CHAT.img=f;render();const bx=document.getElementById("chatbox");if(bx)bx.focus()}});
 document.addEventListener("keydown",e=>{if(e.key==="Escape"&&!$("#sheet").hidden)closeSheet();

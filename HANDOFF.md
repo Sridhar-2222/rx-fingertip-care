@@ -120,6 +120,21 @@ Most target customers do not use email, so patients and chemists sign in with a
 - If a paid AI is added later (`CAP.sample`), the same bar switches to the AI path automatically.
 - Privacy note for pilot users: Chrome's speech recognition sends audio to Google to turn it into text.
 
+## 3e. Rx Assistant (chat) — free, voice-first
+
+- The 💬 button on every page opens the assistant. Without a paid AI (`CAP.sample` absent) it runs the
+  local engine `localReply()` in `index.html`: Telugu/English keyword understanding + the `LS` parser.
+- Speak (🎤) and it sends when you stop talking and **reads the answer aloud**; 📷 reads a printed paper.
+- It can: explain the person's medicines and next dose; save BP/sugar/pulse/SpO2/temperature readings
+  said in a sentence ("నా షుగర్ పరగడుపు 150", "BP 130 by 85") after a tap; show recent readings; start a
+  medicine order ("order Dolo 650 two strips", or refills running low); read today's diet; show doctors'
+  videos for a condition; show hospital records; call the enrolled pharmacy/hospital; chemist stock and
+  new-order summary.
+- Safety: emergency words (chest pain, not breathing, unconscious, stroke, bleeding, poison, suicide…, in
+  Telugu too) always answer first with a **Call 108** button. Questions about doses, mixing medicines or
+  side effects are never answered — it points to the pharmacist/doctor.
+- If a paid AI is added later, the same chat switches to it automatically.
+
 ## 4. Email (Brevo free plan, used as Supabase custom SMTP)
 
 - Host `smtp-relay.brevo.com`, port 587, sender name "Rx Fingertip Care",
@@ -168,6 +183,7 @@ Still to do (test on Android Chrome, on mobile data as well as Wi-Fi):
 - [ ] Telugu language switch and voice read-aloud work
 - [ ] On a real Android phone: speak a patient's details in any order (Telugu and English) and check the form
 - [ ] Photograph a printed OP slip / BP slip and check the form
+- [ ] Assistant on a real phone: speak "BP 130 by 85", "my medicines", "sugar videos", "chest pain" (Telugu and English)
 - [ ] Install to home screen with the "App" button; app opens full-screen
 - [ ] Two accounts: patient data does not appear in the other account
 - [ ] Chemist flow: create shop, add stock, receive a patient order
