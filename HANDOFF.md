@@ -67,6 +67,24 @@ Most target customers do not use email, so patients and chemists sign in with a
   reset blocked for non-admins and signed-out callers) and the app screens in a browser.
   Still to test on the live site: an admin PIN reset by the owner.
 
+## 3b. Hospitals, record handover, "enrolled by"
+
+- **Hospital registration** (`hospital_accounts`): a hospital signs in with mobile + PIN, taps
+  *I'm a hospital* on Home and fills name, registration/licence no., address, phone, emergency no.,
+  ambulance, departments, doctors & OPD timings, map link. Status starts `pending`.
+- **One-time approval by the owner**: Profile → *Approve hospitals*. Only admins (table `app_admins`)
+  can change status (database trigger). Changing the hospital **name or registration no.** sends it
+  back to `pending`; other edits do not.
+- **Record handover** (`vault_handover`): an approved hospital sends a photo/PDF record (up to 3 files,
+  about 190 KB each) to a patient's mobile number. The patient sees it in *Health vault → From hospitals*.
+  The hospital can edit, replace or delete only its own records; the patient can view and download
+  but not change them; nobody else can see them. Records wait for patients who sign up later.
+- **Enrolment** (`enrollments`): a chemist (Chemist → *Patients* tab) or an approved hospital enrols
+  a patient by mobile number; sending a record enrols automatically. The patient sees
+  *My pharmacy & hospital* on the Patient tab and can remove any link.
+- Approved hospitals are listed for everyone under Hospitals → *Registered hospitals ✓*.
+- Privacy rules were tested on the live database with simulated users (20 checks, rolled back).
+
 ## 4. Email (Brevo free plan, used as Supabase custom SMTP)
 
 - Host `smtp-relay.brevo.com`, port 587, sender name "Rx Fingertip Care",
@@ -99,11 +117,14 @@ Done:
 - [x] Forgot-password email sent and link opened
 - [x] RLS on every table; two-account privacy test passed
 - [x] Mobile number + PIN login built and tested (see 3a)
+- [x] Hospital registration, approval, record handover and enrolment built and tested (see 3b)
 - [x] Owner's own account works (it was confirmed manually in Supabase during setup)
 
 Still to do (test on Android Chrome, on mobile data as well as Wi-Fi):
 - [ ] Create an account with a **mobile number + PIN** on the live site and sign in on a second phone
 - [ ] Owner signs in (email) → Profile → Reset a patient's PIN → patient signs in with the new PIN
+- [ ] Hospital registers → owner approves → hospital sends a record → patient sees it in the vault
+- [ ] Chemist enrols a patient → patient sees the pharmacy under "My pharmacy & hospital"
 - [ ] (Optional, email users only) Register a new email account and confirm via the email link
 - [ ] Sign in, sign out, sign in again
 - [ ] Forgot password → set a **different** new password → sign in with it
