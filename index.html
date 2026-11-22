@@ -238,6 +238,7 @@ button.tile{border:0;font:inherit;cursor:pointer}
   <div class="spacer"></div>
   <button class="langbtn" id="installbtn" hidden data-act="install">⬇ App</button>
   <button class="langbtn" data-act="lang" id="langbtn">తెలుగు</button>
+  <button class="langbtn" data-act="profile" id="acctbtn" hidden aria-label="My account" style="padding:6px 9px;display:inline-flex;align-items:center"></button>
 </div></header>
 <div id="banner" hidden></div>
 <main class="wrap" id="view"></main>
@@ -794,9 +795,10 @@ const UI={dietDay:new Date().getDay(),ctab:"orders",ofilter:"active",q:"",hq:"",
 function readRoute(){const h=(location.hash||"").replace("#","");route=ROUTES.includes(h)||SUB.includes(h)?h:"home"}
 let rq=false;function scheduleRender(){if(rq)return;rq=true;requestAnimationFrame(()=>{rq=false;render()})}
 function render(){
- if(!Store.uid){document.documentElement.lang=LANG==="te"?"te":"en";$("#langbtn").textContent=LANG==="te"?"English":"తెలుగు";$("#tabs").innerHTML="";$("#fab").hidden=true;$("#view").innerHTML=vAuth();bindAuth();return}
+ if(!Store.uid){document.documentElement.lang=LANG==="te"?"te":"en";$("#acctbtn").hidden=true;$("#langbtn").textContent=LANG==="te"?"English":"తెలుగు";$("#tabs").innerHTML="";$("#fab").hidden=true;$("#view").innerHTML=vAuth();bindAuth();return}
  const ae=document.activeElement;const aid=ae&&ae.id;let sel=null;try{sel=ae&&ae.selectionStart}catch(e){}
  document.documentElement.lang=LANG==="te"?"te":"en";
+ {const ab=$("#acctbtn");ab.hidden=false;ab.innerHTML=ICON.user;ab.title=t("profile")}
  $("#langbtn").textContent=LANG==="te"?"English":"తెలుగు";
  const tab=route==="chat"?"":SUB.includes(route)?"patient":route;
  $("#fab").hidden=!CAP.sample||route==="chat";$("#fab").title=t("chatTitle");
